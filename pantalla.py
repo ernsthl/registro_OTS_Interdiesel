@@ -1,11 +1,18 @@
 import streamlit as st
-from database import init_db, obtener_ordenes
+from PIL import Image
+from database import init_db, insertar_orden, obtener_ordenes, actualizar_estado, obtener_numeros_ot
+from datetime import datetime
 import pandas as pd
 
 st.set_page_config(page_title="Pantalla Taller", layout="wide")
 init_db()
 
-st.title("📺 Vista de Producción - Órdenes de Trabajo")
+logo = Image.open("logo_interdiesel.jpeg")  # o "assets/logo.png" si está en subcarpeta
+st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
+st.image(logo, width=600)
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.title("📺 Órdenes de Trabajo Registradas")
 
 ordenes = obtener_ordenes()
 
