@@ -9,9 +9,8 @@ st.set_page_config(page_title="Control OT", layout="wide")
 init_db()
 
 logo = Image.open("logo_interdiesel.jpeg")  # o "assets/logo.png" si está en subcarpeta
-st.image(logo, width=200)
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-st.image(logo, width=200)
+st.image(logo, width=1000)
 st.markdown("</div>", unsafe_allow_html=True)
 
 st.title("📋 Sistema de Control de Órdenes de Trabajo")
