@@ -5,7 +5,6 @@ from datetime import datetime
 import pandas as pd
 
 st.set_page_config(page_title="Pantalla Taller", layout="wide")
-init_db()
 
 logo = Image.open("logo_interdiesel.jpeg")  # o "assets/logo.png" si está en subcarpeta
 st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
