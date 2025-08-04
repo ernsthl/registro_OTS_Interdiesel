@@ -1,46 +1,63 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Aug  3 22:07:15 2025
+
+@author: ernst
+"""
+
 import streamlit as st
-from PIL import Image
-from database_mysql import conectar, insertar_orden, obtener_ordenes, actualizar_estado, obtener_numeros_ot
-from datetime import datetime
 import pandas as pd
+from database_mysql import obtener_ordenes, obtener_timestamp_sync
+from datetime import datetime
 
-st.set_page_config(page_title="Pantalla Taller", layout="wide")
+st.set_page_config(page_title="Pantalla OTs", layout="wide")
+st.title("📺 Visualización de Órdenes de Trabajo")
 
-logo = Image.open("logo_interdiesel.jpeg")  # o "assets/logo.png" si está en subcarpeta
-st.markdown("<div style='text-align: center;'>", unsafe_allow_html=True)
-st.image(logo, width=600)
-st.markdown("</div>", unsafe_allow_html=True)
+# Control de sincronización
+if "last_check" not in st.session_state:
+    st.session_state.last_check = None
 
-st.title("📺 Órdenes de Trabajo Registradas")
+current_sync = obtener_timestamp_sync()
+if st.session_state.last_check is None:
+    st.session_state.last_check = current_sync
+elif current_sync != st.session_state.last_check:
+    st.session_state.last_check = current_sync
+    st.experimental_rerun()
 
-ordenes = obtener_ordenes()
+# Obtener datos
+datos = obtener_ordenes()
 
-df = pd.DataFrame(ordenes, columns=[
-    "ID", "FECHA REGISTRO OT", "OT", "CLIENTE", "TIPO SERVICIO",
-    "TECNICO", "ESTADO", "FECHA ENTREGA", "HORA ENTREGA"
-])
+if datos:
+    columnas = [
+        "Fecha Registro", "Número OT", "Cliente", "Tipo Servicio",
+        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
+    ]
+    df = pd.DataFrame(datos, columns=columnas)
+    df.drop("ID", axis=1, inplace=True)
 
-# Separamos en dos: activas y despachadas
-df_activas = df[df["ESTADO"].str.upper() != "DESPACHADO"]
-df_despachadas = df[df["ESTADO"].str.upper() == "DESPACHADO"]
-
-def colorear_estado(estado):
+    # Colorear según estado
     colores = {
-        "DIAGNOSTICO": "background-color: orange",
-        "COTIZADO": "background-color: yellow",
-        "AUTORIZADO": "background-color: lightgreen",
-        "DESPACHADO": "background-color: lightblue",
-        "R-URG": "background-color: red; color: white"
+        "diagnóstico": "#FFFACD",
+        "cotizado": "#ADD8E6",
+        "autorizado": "#90EE90",
+        "despachado": "#D3D3D3",
+        "R-URG": "#FF7F7F"
     }
-    return colores.get(estado.upper(), "")
 
-st.subheader("🟢 Órdenes Activas")
-df_activas["COLOR ESTADO"] = df_activas["ESTADO"].apply(lambda x: x.upper())
-st.dataframe(df_activas.style.map(colorear_estado, subset=["COLOR ESTADO"]), use_container_width=True)
+    def resaltar_estado(val):
+        color = colores.get(val, "#FFFFFF")
+        return f"background-color: {color}"
 
-if not df_despachadas.empty:
+    df_estilo = df.style.applymap(resaltar_estado, subset=["Estado"])
+
+    # Mostrar activas
+    st.subheader("Órdenes Activas")
+    df_activas = df[df["Estado"] != "despachado"]
+    st.dataframe(df_activas.style.applymap(resaltar_estado, subset=["Estado"]), use_container_width=True)
+
+    # Mostrar despachadas
     st.subheader("📦 Órdenes Despachadas")
-    st.dataframe(df_despachadas, use_container_width=True)
-
-# Auto-actualización cada 30 segundos
-st.rerun()
+    df_despachadas = df[df["Estado"] == "despachado"]
+    st.dataframe(df_despachadas.style.applymap(resaltar_estado, subset=["Estado"]), use_container_width=True)
+else:
+    st.info("No hay órdenes registradas.")
