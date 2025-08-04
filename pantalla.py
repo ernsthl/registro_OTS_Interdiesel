@@ -1,6 +1,6 @@
 import streamlit as st
 from PIL import Image
-from database import init_db, insertar_orden, obtener_ordenes, actualizar_estado, obtener_numeros_ot
+from database_mysql import conectar, init_db, insertar_orden, obtener_ordenes, actualizar_estado, obtener_numeros_ot
 from datetime import datetime
 import pandas as pd
 
