@@ -55,6 +55,9 @@ with st.form("form_registro"):
 
     submitted = st.form_submit_button("📥 Registrar OT")
 
+    tipo_servicio_txt = ", ".join(tipo_servicio)
+    tecnico_txt = ", ".join(tecnico)
+
     if submitted:
         if numero_ot.strip() == "":
             st.warning("⚠️ Debe ingresar un número de OT.")
@@ -62,7 +65,7 @@ with st.form("form_registro"):
             st.error("🚫 El número de OT ya existe. Verifique.")
         else:
             insertar_orden(
-                fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, ", ".join(tecnico),
+                fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico_txt,
                 estado,
                 fecha_entrega.strftime("%Y-%m-%d") if fecha_entrega else None,
                 hora_entrega.strftime("%H:%M") if hora_entrega else None,
