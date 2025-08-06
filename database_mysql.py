@@ -76,7 +76,7 @@ def insertar_orden(fecha_registro, numero_ot, cliente, marca_modelo, tipo_servic
     conn = conectar()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO orden_trabajo (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, ", ".join(tecnico), estado, fecha_entrega, hora_entrega)
+        INSERT INTO orden_trabajo (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, "tecnico_tx", estado, fecha_entrega, hora_entrega)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega))
 
