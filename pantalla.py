@@ -1,64 +1,50 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Aug  3 22:07:15 2025
-
-@author: ernst
-"""
 
 import streamlit as st
 import pandas as pd
-from database_mysql import obtener_ordenes, obtener_timestamp_sync
-from datetime import datetime
+from database_mysql import obtener_ordenes
 
-st.set_page_config(page_title="Pantalla OTs", layout="wide")
-st.title("📺 Visualización de Órdenes de Trabajo")
+st.set_page_config(page_title="Pantalla de Producción", layout="wide")
+st.title("🖥️ Órdenes de Trabajo en Producción")
 
-# Control de sincronización
-if "last_check" not in st.session_state:
-    st.session_state.last_check = None
+# Cargar datos
+ordenes = obtener_ordenes()
 
-current_sync = obtener_timestamp_sync()
-if st.session_state.last_check is None:
-    st.session_state.last_check = current_sync
-elif current_sync != st.session_state.last_check:
-    st.session_state.last_check = current_sync
-    st.experimental_rerun()
+if not ordenes:
+    st.info("No hay órdenes registradas actualmente.")
+    st.stop()
 
-# Obtener datos
-datos = obtener_ordenes()
+# Convertir a DataFrame
+df = pd.DataFrame(ordenes, columns=[
+    "ID", "Fecha Registro", "Número OT", "Cliente", "Marca Modelo", "Tipo Servicio",
+    "Técnico", "Estado", "Fecha Entrega", "Hora Entrega", "Registrado Por"
+])
 
-if datos:
-    columnas = [
-        "Fecha Registro", "Número OT", "Cliente", "marca_modelo", "Tipo Servicio",
-        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
-    ]
-    df = pd.DataFrame(datos, columns=columnas)
-    df.drop("ID", axis=1, inplace=True)
+# Filtrar solo OTs no despachadas
+df_activo = df[df["Estado"] != "despachado"].copy()
 
-    # Colorear según estado
-    colores = {
-        "diagnóstico": "#FFFACD",
-        "cotizado": "#ADD8E6",
-        "autorizado": "#90EE90",
-        "despachado": "#D3D3D3",
-        "R-URG": "#FF7F7F"
-    }
+# Aplicar colores según estado
+def color_estado(row):
+    color = ""
+    estado = row["Estado"]
+    if estado == "diagnóstico":
+        color = "background-color: lightgray"
+    elif estado == "cotizado":
+        color = "background-color: orange"
+    elif estado == "autorizado":
+        color = "background-color: lightgreen"
+    elif estado == "R-URG":
+        color = "background-color: red; color: white"
+    return [color if col == "Estado" else "" for col in df_activo.columns]
 
-    def resaltar_estado(val):
-        color = colores.get(val, "#FFFFFF")
-        return f"background-color: {color}"
+# Mostrar tabla estilizada
+st.dataframe(
+    df_activo.style.apply(color_estado, axis=1),
+    use_container_width=True,
+    height=700
+)
 
-    df_estilo = df.style.applymap(resaltar_estado, subset=["Estado"])
-
-    # Mostrar activas
-    st.subheader("Órdenes Activas")
-    df_activas = df[df["Estado"] != "despachado"]
-    st.dataframe(df_activas.style.applymap(resaltar_estado, subset=["Estado"]), use_container_width=True)
-
-    # Mostrar despachadas
-    st.subheader("📦 Órdenes Despachadas")
-    df_despachadas = df[df["Estado"] == "despachado"]
-    st.dataframe(df_despachadas.style.applymap(resaltar_estado, subset=["Estado"]), use_container_width=True)
-else:
-    st.info("No hay órdenes registradas.")
-
+# OTs despachadas (en panel aparte)
+df_despachadas = df[df["Estado"] == "despachado"].copy()
+if not df_despachadas.empty:
+    with st.expander("📦 Órdenes Despachadas"):
+        st.dataframe(df_despachadas, use_container_width=True)
