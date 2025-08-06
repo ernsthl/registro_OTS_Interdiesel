@@ -59,7 +59,7 @@ def crear_tablas():
             contrasena VARCHAR(100)
         )
     """)
-    cur.execute("INSERT IGNORE INTO usuarios (nombre_usuario, contrasena) VALUES ('admin', 'admin123'), ('operador', 'ot2024')")
+    cur.execute("INSERT IGNORE INTO usuarios (nombre_usuario, contrasena) VALUES ('admin', '567admin.'), ('operador', 'ot2025')")
 
     conn.commit()
     conn.close()
@@ -72,13 +72,13 @@ def verificar_credenciales(usuario, contrasena):
     conn.close()
     return result is not None
 
-def insertar_orden(fecha_registro, numero_ot, cliente, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
+def insertar_orden(fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
     conn = conectar()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO orden_trabajo (fecha_registro, numero_ot, cliente, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega)
+        INSERT INTO orden_trabajo (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """, (fecha_registro, numero_ot, cliente, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega))
+    """, (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega))
 
     # Auditoría
     cur.execute("""
