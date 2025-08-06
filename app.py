@@ -1,6 +1,6 @@
 
 import streamlit as st
-from datetime import datetime
+from datetime import datetime, time
 from database_mysql import (
     crear_tablas, insertar_orden, obtener_numeros_ot,
     actualizar_estado, verificar_credenciales
@@ -13,6 +13,7 @@ crear_tablas()
 st.markdown("## 🧾 Sistema de Control de Órdenes de Trabajo")
 st.markdown("---")
 
+# 🔐 Login
 if "usuario" not in st.session_state:
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
@@ -34,19 +35,23 @@ usuario = st.session_state["usuario"]
 st.markdown("### ➕ Registro de nueva Orden de Trabajo")
 
 with st.form("form_registro"):
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
-        fecha_registro = st.text_input("📅 Fecha de registro", value=datetime.now().strftime("%Y-%m-%d %H:%M"))
+        fecha_registro = st.date_input("📅 Fecha de registro", value=datetime.now()).strftime("%Y-%m-%d")
         numero_ot = st.text_input("🔢 Número OT")
         cliente = st.text_input("👨‍💼 Cliente")
-    with col2:
         marca_modelo = st.text_input("🚗 Marca y Modelo del Auto")
         tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"])
-        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Juan", "Carlos", "Diana", "Pedro"])
-    with col3:
-        estado = st.selectbox("📌 Estado", ["diagnóstico", "cotizado", "autorizado", "despachado", "R-URG"])
-        fecha_entrega = st.date_input("📆 Fecha estimada de entrega")
-        hora_entrega = st.time_input("🕓 Hora estimada de entrega")
+    with col2:
+        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Guiselle", "Santiago"])
+        estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
+
+        if estado == "autorizado":
+            fecha_entrega = st.date_input("📆 Fecha estimada de entrega")
+            hora_entrega = st.time_input("🕓 Hora estimada de entrega")
+        else:
+            fecha_entrega = None
+            hora_entrega = None
 
     submitted = st.form_submit_button("📥 Registrar OT")
 
@@ -57,8 +62,11 @@ with st.form("form_registro"):
             st.error("🚫 El número de OT ya existe. Verifique.")
         else:
             insertar_orden(
-                fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio,  ", ".join(tecnico), 
-                estado, fecha_entrega.strftime("%Y-%m-%d"), hora_entrega.strftime("%H:%M"), usuario
+                fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, ", ".join(tecnico),
+                estado,
+                fecha_entrega.strftime("%Y-%m-%d") if fecha_entrega else None,
+                hora_entrega.strftime("%H:%M") if hora_entrega else None,
+                usuario
             )
             st.success("✅ Orden registrada exitosamente.")
             st.experimental_rerun()
@@ -70,7 +78,7 @@ st.markdown("### 🔄 Actualizar estado de OT existente")
 numeros_ot = obtener_numeros_ot()
 if numeros_ot:
     selected_ot = st.selectbox("🔍 Seleccionar OT", numeros_ot)
-    nuevo_estado = st.selectbox("📝 Nuevo estado", ["diagnóstico", "cotizado", "autorizado", "despachado", "R-URG"])
+    nuevo_estado = st.selectbox("📝 Nuevo estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
     colf1, colf2 = st.columns(2)
     with colf1:
         nueva_fecha = st.date_input("📆 Nueva fecha estimada de entrega")
