@@ -29,7 +29,7 @@ datos = obtener_ordenes()
 
 if datos:
     columnas = [
-        "Fecha Registro", "Número OT", "Cliente", "Tipo Servicio",
+        "Fecha Registro", "Número OT", "Cliente", "marca_modelo", "Tipo Servicio",
         "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
     ]
     df = pd.DataFrame(datos, columns=columnas)
@@ -61,3 +61,4 @@ if datos:
     st.dataframe(df_despachadas.style.applymap(resaltar_estado, subset=["Estado"]), use_container_width=True)
 else:
     st.info("No hay órdenes registradas.")
+
