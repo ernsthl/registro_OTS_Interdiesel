@@ -41,8 +41,8 @@ with st.form("form_registro"):
         numero_ot = st.text_input("🔢 Número OT")
         cliente = st.text_input("👨‍💼 Cliente")
         marca_modelo = st.text_input("🚗 Marca y Modelo del Auto")
-        tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"])
     with col2:
+        tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"])
         tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Guiselle", "Santiago"])
         estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
 
