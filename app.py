@@ -55,7 +55,6 @@ with st.form("form_registro"):
 
     submitted = st.form_submit_button("📥 Registrar OT")
 
-    tipo_servicio_txt = ", ".join(tipo_servicio)
     tecnico_txt = ", ".join(tecnico)
 
     if submitted:
