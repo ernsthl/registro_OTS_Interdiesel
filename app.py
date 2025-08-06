@@ -57,7 +57,7 @@ with st.form("form_registro"):
             st.error("🚫 El número de OT ya existe. Verifique.")
         else:
             insertar_orden(
-                fecha_registro, numero_ot, cliente, tipo_servicio,  ", ".join(tecnico), marca_modelo,
+                fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio,  ", ".join(tecnico), 
                 estado, fecha_entrega.strftime("%Y-%m-%d"), hora_entrega.strftime("%H:%M"), usuario
             )
             st.success("✅ Orden registrada exitosamente.")
