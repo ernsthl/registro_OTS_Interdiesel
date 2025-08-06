@@ -35,12 +35,12 @@ with st.form("form_registro"):
         fecha_registro = st.text_input("Fecha de registro OT", value=datetime.now().strftime("%Y-%m-%d %H:%M"))
         numero_ot = st.text_input("Número OT")
         cliente = st.text_input("Cliente")
-        marca_modelo = st.text_input("Marca y Modelo del Auto")
     with col2:
+        marca_modelo = st.text_input("Marca y Modelo del Auto")
         tipo_servicio = st.selectbox("Tipo de servicio", ["Laboratorio", "Taller"])
         tecnico = st.selectbox("Nombre del técnico", ["Juan", "Carlos", "Diana", "Pedro"])
-        estado = st.selectbox("Estado", ["diagnóstico", "cotizado", "autorizado", "despachado", "R-URG"])
     with col3:
+        estado = st.selectbox("Estado", ["diagnóstico", "cotizado", "autorizado", "despachado", "R-URG"])
         fecha_entrega = st.date_input("Fecha estimada de entrega")
         hora_entrega = st.time_input("Hora estimada de entrega")
 
