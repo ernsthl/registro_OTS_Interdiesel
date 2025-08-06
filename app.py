@@ -13,18 +13,19 @@ crear_tablas()
 st.markdown("## 🧾 Sistema de Control de Órdenes de Trabajo")
 st.markdown("---")
 
-# 🔐 Login
 if "usuario" not in st.session_state:
-    st.markdown("### 🔐 Ingreso al sistema")
-    usuario_input = st.text_input("👤 Usuario")
-    contrasena_input = st.text_input("🔑 Contraseña", type="password")
-    if st.button("➡️ Iniciar sesión"):
-        if verificar_credenciales(usuario_input, contrasena_input):
-            st.session_state.usuario = usuario_input
-            st.success(f"✅ Bienvenido **{usuario_input}**")
-            st.experimental_rerun()
-        else:
-            st.error("❌ Credenciales incorrectas")
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("### 🔐 Ingreso al sistema")
+        usuario_input = st.text_input("👤 Usuario")
+        contrasena_input = st.text_input("🔑 Contraseña", type="password")
+        if st.button("➡️ Iniciar sesión"):
+            if verificar_credenciales(usuario_input, contrasena_input):
+                st.session_state.usuario = usuario_input
+                st.success(f"✅ Bienvenido **{usuario_input}**")
+                st.experimental_rerun()
+            else:
+                st.error("❌ Credenciales incorrectas")
     st.stop()
 
 usuario = st.session_state["usuario"]
