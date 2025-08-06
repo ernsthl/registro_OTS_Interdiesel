@@ -7,7 +7,7 @@ from database_mysql import (
 )
 
 st.set_page_config(page_title="Registro de OTs", layout="wide")
-st.image("logo_interdiesel.jpeg", width=200)
+st.image("Logo_interdiesel.jpg", width=600)
 crear_tablas()
 
 st.markdown("## 🧾 Sistema de Control de Órdenes de Trabajo")
