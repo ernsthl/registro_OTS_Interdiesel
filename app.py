@@ -87,16 +87,19 @@ if numeros_ot:
     else:
         nueva_fecha, nueva_hora = None, None
 
-    if st.button("✅ Actualizar estado"):
-        actualizar_estado(
-            selected_ot,
-            nuevo_estado,
-            nueva_fecha.strftime("%Y-%m-%d"),
-            nueva_hora.strftime("%H:%M"),
-            usuario
-        )
-        st.success("🆗 Estado actualizado correctamente.")
-        st.experimental_rerun()
+if st.button("✅ Actualizar estado"):
+    fecha_str = nueva_fecha.strftime("%Y-%m-%d") if nueva_fecha else None
+    hora_str = nueva_hora.strftime("%H:%M") if nueva_hora else None
+
+    actualizar_estado(
+        selected_ot,
+        nuevo_estado,
+        fecha_str,
+        hora_str,
+        usuario
+    )
+    st.success("🆗 Estado actualizado correctamente.")
+    st.experimental_rerun()
 else:
     st.info("ℹ️ No hay OTs registradas aún.")
 
