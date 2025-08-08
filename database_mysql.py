@@ -21,6 +21,7 @@ def crear_tablas():
             fecha_registro VARCHAR(50),
             numero_ot VARCHAR(50) UNIQUE,
             cliente VARCHAR(100),
+            marca_modelo VARCHAR(100),
             tipo_servicio VARCHAR(50),
             tecnico VARCHAR(50),
             estado VARCHAR(50),
