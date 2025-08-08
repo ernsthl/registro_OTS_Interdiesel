@@ -73,12 +73,15 @@ def verificar_credenciales(usuario, contrasena):
     return result is not None
 
 def insertar_orden(fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
+    if isinstance(tecnico, list):
+        tecnico = ", ".join(tecnico)
+        
     conn = conectar()
     cur = conn.cursor()
     cur.execute("""
         INSERT INTO orden_trabajo (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    """, (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico_txt, estado, fecha_entrega, hora_entrega))
+    """, (fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega))
 
     # Auditoría
     cur.execute("""
