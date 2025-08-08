@@ -81,7 +81,7 @@ numeros_ot = obtener_numeros_ot()
 if numeros_ot:
     selected_ot = st.selectbox("🔍 Seleccionar OT", numeros_ot)
     nuevo_estado = st.selectbox("📝 Nuevo estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
-    if nuevo_estado in ["AUTORIZADO", "R-URG"]:
+    if nuevo_estado in ["Autorizado", "R-URG"]:
         nueva_fecha = st.date_input("📆 Nueva fecha estimada de entrega")
         nueva_hora = st.time_input("🕓 Nueva hora estimada de entrega")
     else:
@@ -108,10 +108,10 @@ ordenes = obtener_ordenes()
 
 def colorear_estado(estado):
     colores = {
-        "DIAGNOSTICO": "background-color: orange",
-        "COTIZADO": "background-color: yellow",
-        "AUTORIZADO": "background-color: lightgreen",
-        "DESPACHADO": "background-color: lightblue",
+        "Diagnóstico": "background-color: orange",
+        "Cotizado": "background-color: yellow",
+        "Autorizado": "background-color: lightgreen",
+        "Despachado": "background-color: lightblue",
         "R-URG": "background-color: red; color: white"
     }
     return colores.get(estado.upper(), "")
