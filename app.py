@@ -99,3 +99,23 @@ if numeros_ot:
         st.experimental_rerun()
 else:
     st.info("ℹ️ No hay OTs registradas aún.")
+
+st.subheader("📋 Órdenes de trabajo")
+ordenes = obtener_ordenes()
+
+def colorear_estado(estado):
+    colores = {
+        "DIAGNOSTICO": "background-color: orange",
+        "COTIZADO": "background-color: yellow",
+        "AUTORIZADO": "background-color: lightgreen",
+        "DESPACHADO": "background-color: lightblue",
+        "R-URG": "background-color: red; color: white"
+    }
+    return colores.get(estado.upper(), "")
+
+import pandas as pd
+df = pd.DataFrame(ordenes, columns=["FECHA REGISTRO OT", "OT", "CLIENTE", "TIPO SERVICIO", "TECNICO", "FECHA ENTREGA", "HORA ENTREGA"])
+df["COLOR ESTADO"] = df["ESTADO"].apply(lambda x: x.upper())
+df_styled = df.style.applymap(colorear_estado, subset=["COLOR ESTADO"])
+
+st.dataframe(df_styled, use_container_width=True)
