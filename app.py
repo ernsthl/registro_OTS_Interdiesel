@@ -3,7 +3,7 @@ import streamlit as st
 from datetime import datetime, time
 from database_mysql import (
     crear_tablas, insertar_orden, obtener_numeros_ot,
-    actualizar_estado, verificar_credenciales
+    actualizar_estado, verificar_credenciales, obtener_ordenes
 )
 
 st.set_page_config(page_title="Registro de OTs", layout="wide")
