@@ -81,11 +81,11 @@ numeros_ot = obtener_numeros_ot()
 if numeros_ot:
     selected_ot = st.selectbox("🔍 Seleccionar OT", numeros_ot)
     nuevo_estado = st.selectbox("📝 Nuevo estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
-    colf1, colf2 = st.columns(2)
-    with colf1:
+    if nuevo_estado in ["AUTORIZADO", "R-URG"]:
         nueva_fecha = st.date_input("📆 Nueva fecha estimada de entrega")
-    with colf2:
         nueva_hora = st.time_input("🕓 Nueva hora estimada de entrega")
+    else:
+        nueva_fecha, nueva_hora = None, None
 
     if st.button("✅ Actualizar estado"):
         actualizar_estado(
