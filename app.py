@@ -114,7 +114,7 @@ def colorear_estado(estado):
     return colores.get(estado.upper(), "")
 
 import pandas as pd
-df = pd.DataFrame(ordenes, columns=["FECHA REGISTRO OT", "OT", "CLIENTE", "MARCA AUTO", "TIPO SERVICIO", "TECNICO", "FECHA ENTREGA", "HORA ENTREGA"])
+df = pd.DataFrame(ordenes, columns=["ID","FECHA REGISTRO OT", "OT", "CLIENTE", "MARCA AUTO", "TIPO SERVICIO", "TECNICO", "ESTADO", "FECHA ENTREGA", "HORA ENTREGA"])
 df["COLOR ESTADO"] = df["ESTADO"].apply(lambda x: x.upper())
 df_styled = df.style.applymap(colorear_estado, subset=["COLOR ESTADO"])
 
