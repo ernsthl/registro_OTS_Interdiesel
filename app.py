@@ -27,6 +27,13 @@ def colorear_estado(val):
     }
     return colores.get(str(val).upper(), "")
 
+def registrar_cambio_ot():
+    conn = conectar()
+    cur = conn.cursor()
+    cur.execute("UPDATE log_sync SET ultima_actualizacion = NOW() WHERE id = 1")
+    conn.commit()
+    conn.close()
+
 # -------------------- Configuración inicial --------------------
 st.set_page_config(page_title="Registro de OTs", layout="wide")
 st.image("Logo_interdiesel.jpg", width=400)
