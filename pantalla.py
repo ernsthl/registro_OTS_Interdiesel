@@ -15,7 +15,7 @@ if not ordenes:
 
 # Convertir a DataFrame
 df = pd.DataFrame(ordenes, columns=[
-    "Fecha Registro", "Número OT", "Cliente", "Marca Modelo", "Tipo Servicio",
+    "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
     "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
 ])
 
@@ -69,6 +69,7 @@ df_despachadas = df[df["Estado"] == "despachado"].copy()
 if not df_despachadas.empty:
     with st.expander("📦 Órdenes Despachadas"):
         st.dataframe(df_despachadas, use_container_width=True)
+
 
 
 
