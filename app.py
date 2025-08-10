@@ -6,6 +6,18 @@ from database_mysql import (
     actualizar_estado, verificar_credenciales, obtener_ordenes
 )
 
+def normalize_ot(num):
+    """Recibe lo que ingresó el usuario y devuelve 'OT-xxxxx' o None si está vacío."""
+    if not num:
+        return None
+    s = str(num).strip()
+    # Si empieza con ot- o OT-, quitar prefijo y usar la parte numérica
+    if s.lower().startswith("ot-"):
+        s = s[3:].strip()
+    if s == "":
+        return None
+    return f"OT-{s}"
+    
 st.set_page_config(page_title="Registro de OTs", layout="wide")
 st.image("Logo_interdiesel.jpg", width=600)
 crear_tablas()
@@ -38,7 +50,7 @@ with st.form("form_registro"):
     col1, col2 = st.columns(2)
     with col1:
         fecha_registro = st.date_input("📅 Fecha de registro", value=datetime.now()).strftime("%Y-%m-%d")
-        numero_ot = st.text_input("🔢 Número OT")
+        numero_ot_input = st.text_input("🔢 Número OT (ingresa solo el número, ej. 9999)")
         cliente = st.text_input("👨‍💼 Cliente")
         marca_modelo = st.text_input("🚗 Marca y Modelo del Auto")
     with col2:
@@ -57,22 +69,35 @@ with st.form("form_registro"):
 
     tecnico_txt = ", ".join(tecnico)
 
-    if submitted:
-        if numero_ot.strip() == "":
-            st.warning("⚠️ Debe ingresar un número de OT.")
-        elif numero_ot in obtener_numeros_ot():
+if submitted:
+    numero_ot_full = normalize_ot(numero_ot_input)
+    if not numero_ot_full:
+        st.warning("⚠️ Debe ingresar un número de OT.")
+    else:
+        existing = obtener_numeros_ot()
+        # normalizar lista existente por si acaso (por seguridad)
+        existing_norm = [str(x).strip() for x in existing]
+        if numero_ot_full in existing_norm:
             st.error("🚫 El número de OT ya existe. Verifique.")
         else:
-            insertar_orden(
-                fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico_txt,
-                estado,
-                fecha_entrega.strftime("%Y-%m-%d") if fecha_entrega else None,
-                hora_entrega.strftime("%H:%M") if hora_entrega else None,
-                usuario
-            )
-            st.success("✅ Orden registrada exitosamente.")
-            st.experimental_rerun()
-
+            try:
+                insertar_orden(
+                    fecha_registro,
+                    numero_ot_full,
+                    cliente,
+                    marca_modelo,
+                    ", ".join(tipo_servicio) if isinstance(tipo_servicio, list) else tipo_servicio,
+                    ", ".join(tecnico) if isinstance(tecnico, list) else tecnico,
+                    estado.strip().lower(),
+                    fecha_entrega.strftime("%Y-%m-%d") if fecha_entrega else None,
+                    hora_entrega.strftime("%H:%M") if hora_entrega else None,
+                    usuario
+                )
+                st.success("✅ Orden registrada exitosamente.")
+                st.experimental_rerun()
+            except Exception as e:
+                st.error(f"Error al guardar OT: {e}")
+                
 st.markdown("---")
 st.markdown("### 🔄 Actualizar estado de OT existente")
 
