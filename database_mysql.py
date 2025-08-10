@@ -73,7 +73,7 @@ def verificar_credenciales(usuario, contrasena):
     conn.close()
     return result is not None
 
-def insertar_orden(fecha_registro, numero_ot, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
+def insertar_orden(fecha_registro, numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
     if isinstance(tecnico, list):
         tecnico = ", ".join(tecnico)
         
