@@ -19,6 +19,27 @@ df = pd.DataFrame(ordenes, columns=[
     "Técnico", "Estado", "Fecha Entrega", "Hora Entrega", "Registrado Por"
 ])
 
+df['Estado'] = df['Estado'].astype(str).str.strip()  # evita None y espacios
+
+colores = {
+    "diagnóstico": "#FFFACD",  # si usas tilde
+    "diagnostico": "#FFFACD",  # en caso que en BD esté sin tilde
+    "cotizado": "#ADD8E6",
+    "autorizado": "#90EE90",
+    "despachado": "#D3D3D3",
+    "r-urg": "#FF7F7F"
+}
+def resaltar_estado(val):
+    if not isinstance(val, str):
+        return ""
+    key = val.strip().lower()
+    # Normalizar 'r-urg' / 'R-URG' etc:
+    key = key.replace(" ", "").replace("_", "-")
+    return f"background-color: {colores.get(key, '#FFFFFF')}"
+
+df_styled = df.style.map(resaltar_estado, subset=["Estado"])
+st.dataframe(df_styled, use_container_width=True)
+
 # Filtrar solo OTs no despachadas
 df_activo = df[df["Estado"] != "despachado"].copy()
 
@@ -48,3 +69,4 @@ df_despachadas = df[df["Estado"] == "despachado"].copy()
 if not df_despachadas.empty:
     with st.expander("📦 Órdenes Despachadas"):
         st.dataframe(df_despachadas, use_container_width=True)
+
