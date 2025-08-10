@@ -105,8 +105,8 @@ def obtener_ordenes():
     return rows
     
 def obtener_orden_por_numero(ot_numero):
-    conn = None
-    cursor = None
+    conn = conectar()
+    cur = conn.cursor()
     try:
         conn = conectar()
         cursor = conn.cursor(dictionary=True)  # Retorna filas como diccionario
@@ -127,8 +127,8 @@ def obtener_orden_por_numero(ot_numero):
             conn.close()
             
 def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
-    conn = None
-    cursor = None
+    conn = conectar()
+    cur = conn.cursor()
     try:
         conn = conectar()
         cursor = conn.cursor()
