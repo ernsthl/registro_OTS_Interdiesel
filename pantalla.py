@@ -1,3 +1,4 @@
+import time
 import streamlit as st
 import pandas as pd
 from database_mysql import obtener_ordenes_pantalla
@@ -36,6 +37,14 @@ st.markdown(
 st.image("Logo_interdiesel.jpg", width=500)
 st.markdown("<h1 style='text-align: center; color: white;'>🖥️ Órdenes de Trabajo en Producción</h1>", unsafe_allow_html=True)
 
+def obtener_timestamp():
+    conn = conectar()
+    cur = conn.cursor()
+    cur.execute("SELECT ultima_actualizacion FROM log_sync WHERE id = 1")
+    ts = cur.fetchone()[0]
+    conn.close()
+    return ts
+
 # Cargar datos
 ordenes = obtener_ordenes_pantalla()
 
@@ -49,6 +58,21 @@ df = pd.DataFrame(ordenes, columns=[
     "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
 ])
 
+# Primera carga
+ultima_version = obtener_timestamp()
+df = obtener_ordenes()
+tabla = st.empty()
+tabla.dataframe(df, use_container_width=True)
+
+# Loop de escucha
+while True:
+    time.sleep(2)  # Revisa cada 2 segundos
+    nueva_version = obtener_timestamp()
+    if nueva_version != ultima_version:
+        ultima_version = nueva_version
+        df = obtener_ordenes()
+        tabla.dataframe(df, use_container_width=True)
+        
 # Normalizar estado
 df['Estado'] = df['Estado'].astype(str).str.strip().str.lower()
 
@@ -84,3 +108,4 @@ styled_df = (
 
 # Mostrar tabla completa
 st.markdown(styled_df.to_html(), unsafe_allow_html=True)
+
