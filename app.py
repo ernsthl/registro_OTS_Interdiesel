@@ -153,7 +153,7 @@ if "ot_edit" in st.session_state:
 st.markdown("---")
 
 # -------------------- Listado de OTs --------------------
-st.title("🖥️ Registro de Órdenes de Trabajo")
+st.markdown("### 🖥️ Registro de Órdenes de Trabajo")
 ordenes = obtener_ordenes()
 if ordenes:
     df = pd.DataFrame(ordenes, columns=["ID","FECHA REGISTRO OT", "OT", "CLIENTE", "MARCA AUTO", "TIPO SERVICIO", "TECNICO", "ESTADO", "FECHA ENTREGA", "HORA ENTREGA", "USUARIO MODIFICACION", "FECHA MODIFICACION"])
