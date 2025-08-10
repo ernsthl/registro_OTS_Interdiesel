@@ -106,6 +106,7 @@ st.markdown("---")
 
 # -------------------- Actualizar OT --------------------
 st.markdown("### ✏️ Actualizar OT")
+
 num_busqueda = st.text_input("🔍 Ingrese número de OT para buscar", placeholder="ingrese texto")
 if st.button("Buscar OT"):
     ot_data = obtener_orden_por_numero(normalize_ot(num_busqueda))
@@ -117,24 +118,52 @@ if st.button("Buscar OT"):
 
 if "ot_edit" in st.session_state:
     ot_edit = st.session_state.ot_edit
+
+    # Estado y campos fecha/hora fuera del formulario para actualización dinámica
+    estado = st.selectbox(
+        "📌 Estado",
+        ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"],
+        index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["estado"]),
+        key="estado_outside_form"
+    )
+
+    if estado in ["Autorizado", "R-URG"]:
+        fecha_entrega = st.date_input(
+            "📆 Fecha estimada de entrega",
+            value=datetime.strptime(ot_edit["fecha_entrega"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now(),
+            key="fecha_entrega_outside_form"
+        )
+        hora_entrega = st.time_input(
+            "🕓 Hora estimada de entrega",
+            value=datetime.strptime(ot_edit["hora_entrega"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time(),
+            key="hora_entrega_outside_form"
+        )
+    else:
+        fecha_entrega = None
+        hora_entrega = None
+
     with st.form("form_actualizar"):
         col1, col2 = st.columns(2)
         with col1:
             st.write(f"**Número OT:** {ot_edit['numero_ot']}")
-            cliente = st.text_input("👨‍💼 Cliente", value=ot_edit["cliente"])
-            marca_modelo = st.text_input("🚗 Marca y Modelo", value=ot_edit["marca_modelo"])
-            tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"], index=0 if ot_edit["tipo_servicio"]=="Laboratorio" else 1)
-            tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Gisell", "Santiago"], default=ot_edit["tecnico"].split(", "))
+            cliente = st.text_input("👨‍💼 Cliente", value=ot_edit["cliente"], key="cliente_form")
+            marca_modelo = st.text_input("🚗 Marca y Modelo", value=ot_edit["marca_modelo"], key="marca_modelo_form")
+            tipo_servicio = st.selectbox(
+                "🛠️ Tipo de servicio",
+                ["Laboratorio", "Taller"],
+                index=0 if ot_edit["tipo_servicio"] == "Laboratorio" else 1,
+                key="tipo_servicio_form"
+            )
+            tecnico = st.multiselect(
+                "👨‍🔧 Técnicos asignados",
+                ["Armando", "Charly", "Dario", "Gisell", "Santiago"],
+                default=ot_edit["tecnico"].split(", "),
+                key="tecnico_form"
+            )
         with col2:
             st.write(f"**Fecha registro:** {ot_edit['fecha_registro']}")
-            estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"], index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["estado"]))
-            if estado in ["Autorizado", "R-URG"]:
-                fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["fecha_entrega"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now())
-                hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["hora_entrega"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time())
-            else:
-                fecha_entrega = None
-                hora_entrega = None
-                
+            # No repetimos estado ni fecha/hora aquí porque están fuera
+
         if st.form_submit_button("💾 Guardar cambios"):
             try:
                 actualizar_ot(
@@ -153,6 +182,7 @@ if "ot_edit" in st.session_state:
                 st.experimental_rerun()
             except Exception as e:
                 st.error(f"Error al actualizar OT: {e}")
+
 st.markdown("---")
 
 # -------------------- Listado de OTs --------------------
