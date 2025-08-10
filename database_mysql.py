@@ -134,7 +134,7 @@ def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico,
         cursor = conn.cursor()
 
         sql = """
-        UPDATE ordenes_trabajo
+        UPDATE orden_trabajo
         SET
             cliente = %s,
             marca_modelo = %s,
@@ -145,7 +145,7 @@ def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico,
             hora_entrega = %s,
             usuario_modificacion = %s,
             fecha_modificacion = NOW()
-        WHERE numero_ot_full = %s
+        WHERE numero_ot = %s
         """
         valores = (
             cliente,
