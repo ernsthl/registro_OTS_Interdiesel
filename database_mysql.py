@@ -112,7 +112,7 @@ def obtener_orden_por_numero(ot_numero):
         cursor = conn.cursor(dictionary=True)  # Retorna filas como diccionario
 
         sql = "SELECT * FROM orden_trabajo WHERE numero_ot = %s"
-        cursor.execute(sql, (numero_ot,))
+        cursor.execute(sql, (numero_ot_full,))
         resultado = cursor.fetchone()  # Solo una fila
 
         return resultado  # Diccionario o None si no encontró
