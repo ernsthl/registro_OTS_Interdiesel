@@ -128,8 +128,8 @@ if "ot_edit" in st.session_state:
         with col2:
             st.write(f"**Fecha registro:** {ot_edit['fecha_registro']}")
             estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"], index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["estado"]))
-            fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["FECHA ENTREGA"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now())
-            hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["HORA ENTREGA"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time())
+            fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["fecha_entrega"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now())
+            hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["hora_entrega"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time())
         
         if st.form_submit_button("💾 Guardar cambios"):
             try:
