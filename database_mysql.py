@@ -103,7 +103,29 @@ def obtener_ordenes():
     rows = cur.fetchall()
     conn.close()
     return rows
+    
+def obtener_orden_por_numero(ot_numero):
+    conn = None
+    cursor = None
+    try:
+        conn = conectar()
+        cursor = conn.cursor(dictionary=True)  # Retorna filas como diccionario
 
+        sql = "SELECT * FROM ordenes_trabajo WHERE ot_numero = %s"
+        cursor.execute(sql, (ot_numero,))
+        resultado = cursor.fetchone()  # Solo una fila
+
+        return resultado  # Diccionario o None si no encontró
+
+    except Exception as e:
+        raise Exception(f"Error obteniendo OT: {e}")
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            
 def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
     conn = None
     cursor = None
