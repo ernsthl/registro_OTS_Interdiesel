@@ -103,6 +103,14 @@ def obtener_ordenes():
     rows = cur.fetchall()
     conn.close()
     return rows
+
+def obtener_ordenes_pantalla():
+    conn = conectar()
+    cur = conn.cursor()
+    cur.execute("SELECT numero_ot, fecha_registro, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega FROM orden_trabajo ORDER BY fecha_registro DESC")
+    rows = cur.fetchall()
+    conn.close()
+    return rows
     
 def obtener_orden_por_numero(numero_ot):
     conn = conectar()
@@ -111,7 +119,7 @@ def obtener_orden_por_numero(numero_ot):
         conn = conectar()
         cursor = conn.cursor(dictionary=True)  # Retorna filas como diccionario
 
-        sql = "SELECT numero_ot, fecha_registro, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario_modificacion, fecha_modificacion FROM orden_trabajo WHERE numero_ot = %s"
+        sql = "SELECT * FROM orden_trabajo WHERE numero_ot = %s"
         cursor.execute(sql, (numero_ot,))
         resultado = cursor.fetchone()  # Solo una fila
 
