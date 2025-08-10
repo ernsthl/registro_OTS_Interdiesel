@@ -106,6 +106,7 @@ numeros_ot = obtener_numeros_ot()
 if numeros_ot:
     selected_ot = st.selectbox("🔍 Seleccionar OT", numeros_ot)
     nuevo_estado = st.selectbox("📝 Nuevo estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
+    nuevo_estado_clean = nuevo_estado.strip().lower()
     if nuevo_estado in ["Autorizado", "R-URG"]:
         nueva_fecha = st.date_input("📆 Nueva fecha estimada de entrega")
         nueva_hora = st.time_input("🕓 Nueva hora estimada de entrega")
