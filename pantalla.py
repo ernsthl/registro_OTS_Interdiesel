@@ -1,79 +1,82 @@
-import time
-import mysql.connector
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import time
+from database_mysql import obtener_ordenes_pantalla, conectar
 
-# --- Configuración ---
-st.set_page_config(layout="wide")
+# -------------------- Configuración inicial --------------------
+st.set_page_config(page_title="Pantalla de Producción", layout="wide")
+st.image("Logo_interdiesel.jpg", width=400)
 st.markdown(
-    """
-    <style>
-        table {
-            font-size: 28px !important;
-        }
-        thead th {
-            font-weight: bold !important;
-            font-size: 32px !important;
-            background-color: #f0f0f0 !important;
-        }
-    </style>
-    """,
+    "<h1 style='text-align: center; font-size: 50px;'>🖥️ Órdenes de Trabajo en Producción</h1>",
     unsafe_allow_html=True
 )
 
-# --- Conexión ---
-def conectar():
-    return mysql.connector.connect(
-        host="us-phx-web1166.main-hosting.eu",
-        user="u978404744_admin",
-        password="91AW9S:IPj&",
-        database="u978404744_control_ots"
-    )
-
-# --- Funciones ---
-def obtener_timestamp():
+# Función para obtener el valor actual de last_update
+def obtener_last_update():
     conn = conectar()
     cur = conn.cursor()
-    cur.execute("SELECT ultima_actualizacion FROM log_sync WHERE id = 1")
-    ts = cur.fetchone()[0]
+    cur.execute("SELECT last_update FROM log_sync LIMIT 1")
+    last_update = cur.fetchone()[0]
     conn.close()
-    return ts
+    return str(last_update)
 
-def obtener_ordenes():
-    conn = conectar()
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT numero_ot, fecha_registro, cliente, marca_modelo, tipo_servicio,
-               tecnico, estado, fecha_entrega, hora_entrega
-        FROM orden_trabajo
-        WHERE estado != 'Despachado'
-        ORDER BY fecha_registro DESC
-    """)
-    data = cur.fetchall()
-    conn.close()
+# Función para dar color a las filas según estado
+def color_fila(row):
+    estado = row["Estado"]
+    if estado == "actualizado" or estado == "autorizado":
+        color = "background-color: #90ee90"
+    elif estado == "diagnóstico" or estado == "diagnostico":
+        color = "background-color: #fffacd"
+    elif estado == "cotizado":
+        color = "background-color: #add8e6"
+    elif estado == "despachado":
+        color = "background-color: #d3d3d3"
+    elif estado == "r-urg":
+        color = "background-color: #ff7f7f; color: white"
+    else:
+        color = ""
+    return [color] * len(row)
 
-    df = pd.DataFrame(data, columns=[
-        "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
-        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
-    ])
+# Estilos para encabezados grandes
+header_styles = [{
+    'selector': 'th',
+    'props': [
+        ('font-weight', 'bold'),
+        ('font-size', '28px'),
+        ('text-align', 'center'),
+        ('background-color', '#f0f0f0')
+    ]
+}]
 
-    # Pintar filas en verde si estado es "Actualizado"
-    df_html = df.style.apply(
-        lambda row: ['background-color: lightgreen' if row["Estado"] == "Actualizado" else '' for _ in row],
-        axis=1
-    ).to_html()
-    return df_html
+# Inicializar valor de last_update
+last_update_guardado = obtener_last_update()
 
-# --- UI ---
-st.title("🖥️ Órdenes de Trabajo en Producción")
-
-ultima_version = obtener_timestamp()
-tabla = st.empty()
-tabla.markdown(obtener_ordenes(), unsafe_allow_html=True)
-
+# Loop infinito para refrescar datos en tiempo real
 while True:
-    time.sleep(2)  # Revisa cada 2 segundos
-    nueva_version = obtener_timestamp()
-    if nueva_version != ultima_version:
-        ultima_version = nueva_version
-        tabla.markdown(obtener_ordenes(), unsafe_allow_html=True)
+    last_update_actual = obtener_last_update()
+    if last_update_actual != last_update_guardado:
+        last_update_guardado = last_update_actual
+
+        # Cargar datos actualizados
+        ordenes = obtener_ordenes_pantalla()
+
+        if not ordenes:
+            st.info("No hay órdenes registradas actualmente.")
+        else:
+            df = pd.DataFrame(ordenes, columns=[
+                "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
+                "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
+            ])
+            df['Estado'] = df['Estado'].astype(str).str.strip().str.lower()
+            df = df.drop_duplicates(subset=["Número OT"])
+
+            st.dataframe(
+                df.style
+                  .apply(color_fila, axis=1)
+                  .set_table_styles(header_styles),
+                use_container_width=True,
+                height=800
+            )
+
+    # Esperar 5 segundos antes de volver a consultar
+    time.sleep(5)
