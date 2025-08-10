@@ -88,7 +88,7 @@ def insertar_orden(fecha_registro, numero_ot_full, cliente, marca_modelo, tipo_s
     cur.execute("""
         INSERT INTO log_auditoria (operacion, numero_ot, estado_anterior, estado_nuevo, usuario)
         VALUES (%s, %s, %s, %s, %s)
-    """, ("registro", numero_ot, None, estado, usuario))
+    """, ("registro", numero_ot_full, None, estado, usuario))
 
     # Actualizar log_sync
     cur.execute("UPDATE log_sync SET last_update = NOW() WHERE id = 1")
