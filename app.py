@@ -120,16 +120,17 @@ if "ot_edit" in st.session_state:
     with st.form("form_actualizar"):
         st.write(f"**Número OT:** {ot_edit['numero_ot']}")
         st.write(f"**Fecha registro:** {ot_edit['fecha_registro']}")
-    col1, col2 = st.columns(2)
-    with col1:
-        cliente = st.text_input("👨‍💼 Cliente", value=ot_edit["cliente"])
-        marca_modelo = st.text_input("🚗 Marca y Modelo", value=ot_edit["marca_modelo"])
-        tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"], index=0 if ot_edit["tipo_servicio"]=="Laboratorio" else 1)
-        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Gisell", "Santiago"], default=ot_edit["tecnico"].split(", "))
-    with col2:
-        estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"], index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["estado"]))
-        fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["FECHA ENTREGA"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now())
-        hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["HORA ENTREGA"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time())
+        col1, col2 = st.columns(2)
+        with col1:
+            cliente = st.text_input("👨‍💼 Cliente", value=ot_edit["cliente"])
+            marca_modelo = st.text_input("🚗 Marca y Modelo", value=ot_edit["marca_modelo"])
+            tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"], index=0 if ot_edit["tipo_servicio"]=="Laboratorio" else 1)
+            tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Gisell", "Santiago"], default=ot_edit["tecnico"].split(", "))
+        with col2:
+            estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"], index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["estado"]))
+            fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["FECHA ENTREGA"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now())
+            hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["HORA ENTREGA"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time())
+        
         if st.form_submit_button("💾 Guardar cambios"):
             try:
                 actualizar_ot(
