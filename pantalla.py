@@ -23,9 +23,9 @@ def obtener_last_update():
 # Función para dar color a las filas según estado
 def color_fila(row):
     estado = row["Estado"]
-    if estado == "actualizado" or estado == "autorizado":
+    if estado in ["actualizado", "autorizado"]:
         color = "background-color: #90ee90"
-    elif estado == "diagnóstico" or estado == "diagnostico":
+    elif estado in ["diagnóstico", "diagnostico"]:
         color = "background-color: #fffacd"
     elif estado == "cotizado":
         color = "background-color: #add8e6"
@@ -72,17 +72,4 @@ while True:
                 "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
                 "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
             ])
-            df['Estado'] = df['Estado'].astype(str).str.strip().str.lower()
-            df = df.drop_duplicates(subset=["Número OT"])
-
-            st.dataframe(
-                df.style
-                  .apply(color_fila, axis=1)
-                  .set_table_styles(header_styles),
-                use_container_width=True,
-                height=800
-            )
-
-    # Esperar 5 segundos antes de volver a consultar
-    time.sleep(5)
-
+            df['Estado'] = df['Estado'].astype
