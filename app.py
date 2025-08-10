@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 from database_mysql import (
-    crear_tablas, insertar_orden, obtener_numeros_ot,
+    conectar, crear_tablas, insertar_orden, obtener_numeros_ot,
     actualizar_ot, verificar_credenciales, obtener_orden_por_numero, obtener_ordenes
 )
 
@@ -105,6 +105,7 @@ if submitted:
                     hora_entrega.strftime("%H:%M") if hora_entrega else None,
                     usuario
                 )
+                registrar_cambio_ot()
                 st.success("✅ Orden registrada exitosamente.")
             except Exception as e:
                 st.error(f"Error al guardar OT: {e}")
@@ -184,6 +185,7 @@ if "ot_edit" in st.session_state:
                     hora_entrega.strftime("%H:%M") if hora_entrega else None,
                     usuario
                 )
+                registrar_cambio_ot()
                 st.success("✅ OT actualizada exitosamente.")
                 del st.session_state.ot_edit
                 st.experimental_rerun()
