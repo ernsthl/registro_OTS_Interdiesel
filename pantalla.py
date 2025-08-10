@@ -37,16 +37,21 @@ def color_fila(row):
         color = ""
     return [color] * len(row)
 
-# Estilos para encabezados grandes
-header_styles = [{
-    'selector': 'th',
-    'props': [
+# Estilos para encabezados y contenido grandes
+table_styles = [
+    {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', '28px'),
+        ('font-size', '40px'),
         ('text-align', 'center'),
-        ('background-color', '#f0f0f0')
-    ]
-}]
+        ('background-color', '#f0f0f0'),
+        ('padding', '15px')
+    ]},
+    {'selector': 'td', 'props': [
+        ('font-size', '30px'),
+        ('text-align', 'center'),
+        ('padding', '10px')
+    ]}
+]
 
 # Inicializar valor de last_update
 last_update_guardado = obtener_last_update()
@@ -80,3 +85,4 @@ while True:
 
     # Esperar 5 segundos antes de volver a consultar
     time.sleep(5)
+
