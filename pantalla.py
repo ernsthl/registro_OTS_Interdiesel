@@ -1,7 +1,7 @@
 
 import streamlit as st
 import pandas as pd
-from database_mysql import obtener_ordenes
+from database_mysql import obtener_ordenes, obtener_ordenes_pantalla
 
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
 st.title("🖥️ Órdenes de Trabajo en Producción")
@@ -69,4 +69,5 @@ df_despachadas = df[df["Estado"] == "despachado"].copy()
 if not df_despachadas.empty:
     with st.expander("📦 Órdenes Despachadas"):
         st.dataframe(df_despachadas, use_container_width=True)
+
 
