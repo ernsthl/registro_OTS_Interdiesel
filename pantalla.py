@@ -20,41 +20,32 @@ df = pd.DataFrame(ordenes, columns=[
     "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
 ])
 
+# Normalizar estado
 df['Estado'] = df['Estado'].astype(str).str.strip().str.lower()
 
 # Eliminar duplicados
 df = df.drop_duplicates(subset=["Número OT"])
 
+# Función para colorear filas según estado
 def color_fila(row):
     estado = row["Estado"]
-    if estado == "actualizado" or estado == "autorizado":
-        color = "background-color: #90ee90"
-    elif estado == "diagnóstico" or estado == "diagnostico":
-        color = "background-color: #fffacd"
+    if estado in ["actualizado", "autorizado"]:
+        color = "background-color: #90ee90"      # Verde claro
+    elif estado in ["diagnóstico", "diagnostico"]:
+        color = "background-color: #fffacd"      # Amarillo claro
     elif estado == "cotizado":
-        color = "background-color: #add8e6"
+        color = "background-color: #add8e6"      # Azul claro
     elif estado == "despachado":
-        color = "background-color: #d3d3d3"
+        color = "background-color: #d3d3d3"      # Gris
     elif estado == "r-urg":
-        color = "background-color: #ff7f7f; color: white"
+        color = "background-color: #ff7f7f; color: white"  # Rojo con texto blanco
     else:
         color = ""
     return [color] * len(row)
 
-header_styles = [{
-    'selector': 'th',
-    'props': [
-        ('font-weight', 'bold'),
-        ('font-size', '14px'),
-        ('text-align', 'center'),
-        ('background-color', '#f0f0f0')
-    ]
-}]
-
-st.dataframe(
+# Estilos de tabla
+styled_df = (
     df.style
       .apply(color_fila, axis=1)
-      .set_table_styles(header_styles),
-    use_container_width=True,
-    height=700
-)
+      .set_table_styles([
+          {'selector': 'th', 'props'
