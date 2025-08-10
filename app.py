@@ -65,7 +65,7 @@ with st.form("form_registro", clear_on_submit=True):
         marca_modelo = st.text_input("🚗 Marca y Modelo del Auto", placeholder="ingrese texto")
     with col2:
         tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["escoja una opción", "Laboratorio", "Taller"])
-        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Guiselle", "Santiago"], default=[])
+        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Gisell", "Santiago"], default=[])
         estado = st.selectbox("📌 Estado", ["escoja una opción", "Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
 
         if estado in ["Autorizado", "R-URG"]:
@@ -118,19 +118,19 @@ if st.button("Buscar OT"):
 if "ot_edit" in st.session_state:
     ot_edit = st.session_state.ot_edit
     with st.form("form_actualizar"):
-        st.write(f"**Número OT:** {ot_edit['OT']}")
-        st.write(f"**Fecha registro:** {ot_edit['FECHA REGISTRO OT']}")
-        cliente = st.text_input("👨‍💼 Cliente", value=ot_edit["CLIENTE"])
-        marca_modelo = st.text_input("🚗 Marca y Modelo", value=ot_edit["MARCA AUTO"])
-        tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"], index=0 if ot_edit["TIPO SERVICIO"]=="Laboratorio" else 1)
-        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Guiselle", "Santiago"], default=ot_edit["TECNICO"].split(", "))
-        estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"], index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["ESTADO"]))
-        fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["FECHA ENTREGA"], "%Y-%m-%d") if ot_edit["FECHA ENTREGA"] else datetime.now())
-        hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["HORA ENTREGA"], "%H:%M").time() if ot_edit["HORA ENTREGA"] else datetime.now().time())
+        st.write(f"**Número OT:** {ot_edit['numero_ot']}")
+        st.write(f"**Fecha registro:** {ot_edit['fecha_registro']}")
+        cliente = st.text_input("👨‍💼 Cliente", value=ot_edit["cliente"])
+        marca_modelo = st.text_input("🚗 Marca y Modelo", value=ot_edit["marca_modelo"])
+        tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["Laboratorio", "Taller"], index=0 if ot_edit["tipo_servicio"]=="Laboratorio" else 1)
+        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Gisell", "Santiago"], default=ot_edit["tecnico"].split(", "))
+        estado = st.selectbox("📌 Estado", ["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"], index=["Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"].index(ot_edit["estado"]))
+        fecha_entrega = st.date_input("📆 Fecha estimada de entrega", value=datetime.strptime(ot_edit["FECHA ENTREGA"], "%Y-%m-%d") if ot_edit["fecha_entrega"] else datetime.now())
+        hora_entrega = st.time_input("🕓 Hora estimada de entrega", value=datetime.strptime(ot_edit["HORA ENTREGA"], "%H:%M").time() if ot_edit["hora_entrega"] else datetime.now().time())
         if st.form_submit_button("💾 Guardar cambios"):
             try:
                 actualizar_ot(
-                    ot_edit["OT"],
+                    ot_edit["numero_ot"],
                     cliente,
                     marca_modelo,
                     tipo_servicio,
