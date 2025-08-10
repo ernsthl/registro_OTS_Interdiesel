@@ -135,42 +135,41 @@ def obtener_orden_por_numero(numero_ot):
             conn.close()
             
 def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
-    conn = conectar()
-    cur = conn.cursor()
+    conn = None
+    cursor = None
     try:
         conn = conectar()
         cursor = conn.cursor()
 
-        sql = """
-        UPDATE orden_trabajo
-        SET
-            cliente = %s,
-            marca_modelo = %s,
-            tipo_servicio = %s,
-            tecnico = %s,
-            estado = %s,
-            fecha_entrega = %s,
-            hora_entrega = %s,
-            usuario_modificacion = %s,
-            fecha_modificacion = NOW()
-        WHERE numero_ot = %s
-        """
-        valores = (
-            cliente,
-            marca_modelo,
-            tipo_servicio,
-            tecnico,
-            estado,
-            fecha_entrega,
-            hora_entrega,
-            usuario,
-            numero_ot_full
-        )
+        campos = [
+            "cliente = %s",
+            "marca_modelo = %s",
+            "tipo_servicio = %s",
+            "tecnico = %s",
+            "estado = %s",
+            "usuario_modificacion = %s",
+            "fecha_modificacion = NOW()"
+        ]
+
+        valores = [cliente, marca_modelo, tipo_servicio, tecnico, estado, usuario]
+
+        if fecha_entrega is not None:
+            campos.append("fecha_entrega = %s")
+            valores.append(fecha_entrega)
+
+        if hora_entrega is not None:
+            campos.append("hora_entrega = %s")
+            valores.append(hora_entrega)
+
+        sql = f"UPDATE orden_trabajo SET {', '.join(campos)} WHERE numero_ot = %s"
+        valores.append(numero_ot_full)
+
         cursor.execute(sql, valores)
         conn.commit()
 
     except Exception as e:
         raise Exception(f"Error actualizando OT: {e}")
+
     finally:
         if cursor:
             cursor.close()
