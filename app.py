@@ -154,7 +154,7 @@ st.markdown("---")
 # -------------------- Listado de OTs --------------------
 ordenes = obtener_ordenes()
 if ordenes:
-    df = pd.DataFrame(ordenes, columns=["ID","FECHA REGISTRO OT", "OT", "CLIENTE", "MARCA AUTO", "TIPO SERVICIO", "TECNICO", "ESTADO", "FECHA ENTREGA", "HORA ENTREGA"])
+    df = pd.DataFrame(ordenes, columns=["ID","FECHA REGISTRO OT", "OT", "CLIENTE", "MARCA AUTO", "TIPO SERVICIO", "TECNICO", "ESTADO", "FECHA ENTREGA", "HORA ENTREGA", "USUARIO MODIFICACION", "FECHA MODIFICACION"])
     df_styled = df.style.applymap(colorear_estado, subset=["ESTADO"])
     st.dataframe(df_styled, use_container_width=True)
 else:
