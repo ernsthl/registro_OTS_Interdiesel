@@ -159,7 +159,6 @@ if "ot_edit" in st.session_state:
                 st.experimental_rerun()
             except Exception as e:
                 st.error(f"Error al actualizar OT: {e}")
-
 st.markdown("---")
 
 # -------------------- Listado de OTs --------------------
