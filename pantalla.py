@@ -7,7 +7,7 @@ st.set_page_config(page_title="Pantalla de Producción", layout="wide")
 st.title("🖥️ Órdenes de Trabajo en Producción")
 
 # Cargar datos
-ordenes = obtener_ordenes()
+ordenes = obtener_ordenes_pantalla()
 
 if not ordenes:
     st.info("No hay órdenes registradas actualmente.")
@@ -15,8 +15,8 @@ if not ordenes:
 
 # Convertir a DataFrame
 df = pd.DataFrame(ordenes, columns=[
-    "ID", "Fecha Registro", "Número OT", "Cliente", "Marca Modelo", "Tipo Servicio",
-    "Técnico", "Estado", "Fecha Entrega", "Hora Entrega", "Registrado Por"
+    "Fecha Registro", "Número OT", "Cliente", "Marca Modelo", "Tipo Servicio",
+    "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
 ])
 
 df['Estado'] = df['Estado'].astype(str).str.strip()  # evita None y espacios
@@ -69,5 +69,6 @@ df_despachadas = df[df["Estado"] == "despachado"].copy()
 if not df_despachadas.empty:
     with st.expander("📦 Órdenes Despachadas"):
         st.dataframe(df_despachadas, use_container_width=True)
+
 
 
