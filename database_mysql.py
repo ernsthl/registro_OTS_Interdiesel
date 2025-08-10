@@ -104,35 +104,48 @@ def obtener_ordenes():
     conn.close()
     return rows
 
-def actualizar_estado(numero_ot, nuevo_estado, nueva_fecha=None, nueva_hora=None, usuario="desconocido"):
-    conn = conectar()
-    cur = conn.cursor()
+def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
+    conn = None
+    cursor = None
+    try:
+        conn = conectar()
+        cursor = conn.cursor()
 
-    # Obtener estado anterior
-    cur.execute("SELECT estado FROM orden_trabajo WHERE numero_ot = %s", (numero_ot,))
-    row = cur.fetchone()
-    estado_anterior = row[0] if row else None
+        sql = """
+        UPDATE ordenes_trabajo
+        SET
+            cliente = %s,
+            marca_modelo = %s,
+            tipo_servicio = %s,
+            tecnico = %s,
+            estado = %s,
+            fecha_entrega = %s,
+            hora_entrega = %s,
+            usuario_modificacion = %s,
+            fecha_modificacion = NOW()
+        WHERE numero_ot_full = %s
+        """
+        valores = (
+            cliente,
+            marca_modelo,
+            tipo_servicio,
+            tecnico,
+            estado,
+            fecha_entrega,
+            hora_entrega,
+            usuario,
+            numero_ot_full
+        )
+        cursor.execute(sql, valores)
+        conn.commit()
 
-    if nueva_fecha and nueva_hora:
-        cur.execute("""
-            UPDATE orden_trabajo SET estado = %s, fecha_entrega = %s, hora_entrega = %s WHERE numero_ot = %s
-        """, (nuevo_estado, nueva_fecha, nueva_hora, numero_ot))
-    else:
-        cur.execute("""
-            UPDATE orden_trabajo SET estado = %s WHERE numero_ot = %s
-        """, (nuevo_estado, numero_ot))
-
-    # Auditoría
-    cur.execute("""
-        INSERT INTO log_auditoria (operacion, numero_ot, estado_anterior, estado_nuevo, usuario)
-        VALUES (%s, %s, %s, %s, %s)
-    """, ("actualizacion", numero_ot, estado_anterior, nuevo_estado, usuario))
-
-    # Actualizar log_sync
-    cur.execute("UPDATE log_sync SET last_update = NOW() WHERE id = 1")
-
-    conn.commit()
-    conn.close()
+    except Exception as e:
+        raise Exception(f"Error actualizando OT: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def obtener_numeros_ot():
     conn = conectar()
