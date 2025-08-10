@@ -30,7 +30,7 @@ def colorear_estado(val):
 def registrar_cambio_ot():
     conn = conectar()
     cur = conn.cursor()
-    cur.execute("UPDATE log_sync SET ultima_actualizacion = NOW() WHERE id = 1")
+    cur.execute("UPDATE log_sync SET last_update = NOW() WHERE id = 1")
     conn.commit()
     conn.close()
 
