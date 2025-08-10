@@ -107,7 +107,7 @@ def obtener_ordenes():
 def obtener_ordenes_pantalla():
     conn = conectar()
     cur = conn.cursor()
-    cur.execute("SELECT numero_ot, fecha_registro, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega FROM orden_trabajo ORDER BY fecha_registro DESC")
+    cur.execute("SELECT numero_ot, fecha_registro, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega FROM orden_trabajo where estado != "Despachado" ORDER BY fecha_registro DESC")
     rows = cur.fetchall()
     conn.close()
     return rows
