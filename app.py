@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import json
 from datetime import datetime
 from database_mysql import (
     conectar, crear_tablas, insertar_orden, obtener_numeros_ot,
@@ -33,6 +34,10 @@ def registrar_cambio_ot():
     cur.execute("UPDATE log_sync SET last_update = NOW() WHERE id = 1")
     conn.commit()
     conn.close()
+
+def actualizar_last_update_json():
+    with open("last_update.json", "w") as f:
+        json.dump({"last_update": datetime.now().isoformat()}, f)
 
 # -------------------- Configuración inicial --------------------
 st.set_page_config(page_title="Registro de OTs", layout="wide")
@@ -106,6 +111,7 @@ if submitted:
                     usuario
                 )
                 registrar_cambio_ot()
+                actualizar_last_update_json()
                 st.success("✅ Orden registrada exitosamente.")
             except Exception as e:
                 st.error(f"Error al guardar OT: {e}")
@@ -186,6 +192,7 @@ if "ot_edit" in st.session_state:
                     usuario
                 )
                 registrar_cambio_ot()
+                actualizar_last_update_json()
                 st.success("✅ OT actualizada exitosamente.")
                 del st.session_state.ot_edit
                 st.experimental_rerun()
