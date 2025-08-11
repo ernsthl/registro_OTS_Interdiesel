@@ -1,12 +1,11 @@
+from streamlit_autorefresh import st_autorefresh
 import streamlit as st
 import pandas as pd
 import json
 import os
 from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
-from streamlit_autorefresh import st_autorefresh
 
-# -------------------- Configuración inicial --------------------
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
 st.image("Logo_interdiesel.jpg", width=400)
 st.markdown(
@@ -59,25 +58,27 @@ table_styles = [
 ]
 
 # Refrescar automáticamente cada 15 segundos
-st_autorefresh(interval=15_000, key="datarefresh")
+count = st_autorefresh(interval=15_000, key="datarefresh")
 
-# Guarda el último update leído en la sesión
 if "last_update_guardado" not in st.session_state:
     st.session_state.last_update_guardado = None
 
 last_update_actual = obtener_last_update_json()
 
-# Solo recarga datos si el last_update cambió
+# Actualiza el valor guardado si hay un cambio
 if last_update_actual != st.session_state.last_update_guardado:
     st.session_state.last_update_guardado = last_update_actual
-    ordenes = obtener_ordenes_pantalla()
-    if not ordenes:
-        st.info("No hay órdenes registradas actualmente.")
-    else:
-        df = pd.DataFrame(ordenes, columns=[
-            "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
-            "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
-        ])
-        df['Estado'] = df['Estado'].astype(str)
-        styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
-        st.dataframe(styled_df, use_container_width=True)
+
+# Siempre carga y muestra los datos para evitar pantalla en blanco
+ordenes = obtener_ordenes_pantalla()
+
+if not ordenes:
+    st.info("No hay órdenes registradas actualmente.")
+else:
+    df = pd.DataFrame(ordenes, columns=[
+        "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
+        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
+    ])
+    df['Estado'] = df['Estado'].astype(str)
+    styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
+    st.dataframe(styled_df, use_container_width=True)
