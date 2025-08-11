@@ -4,7 +4,9 @@ import json
 import os
 from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
+from streamlit_autorefresh import st_autorefresh
 
+# -------------------- Configuración inicial --------------------
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
 st.image("Logo_interdiesel.jpg", width=400)
 st.markdown(
@@ -56,7 +58,10 @@ table_styles = [
     ]}
 ]
 
-# Guarda el último update leido en la sesión
+# Refrescar automáticamente cada 15 segundos
+st_autorefresh(interval=15_000, key="datarefresh")
+
+# Guarda el último update leído en la sesión
 if "last_update_guardado" not in st.session_state:
     st.session_state.last_update_guardado = None
 
@@ -76,10 +81,3 @@ if last_update_actual != st.session_state.last_update_guardado:
         df['Estado'] = df['Estado'].astype(str)
         styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
         st.dataframe(styled_df, use_container_width=True)
-
-# Auto refrescar cada 15 segundos
-st.experimental_rerun() if st.experimental_get_query_params().get("refresh") != ["false"] else None
-st.experimental_set_query_params(refresh="true")
-st.experimental_memo.clear()
-st_autorefresh = st.experimental_get_query_params()
-st.experimental_rerun()
