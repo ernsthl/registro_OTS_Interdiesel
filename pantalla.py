@@ -82,8 +82,9 @@ else:
     ])
     df['Estado'] = df['Estado'].astype(str)
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
-    html = styled_df.render()
+    html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
 
 
 
