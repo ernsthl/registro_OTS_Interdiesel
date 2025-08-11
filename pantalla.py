@@ -1,7 +1,10 @@
 import streamlit as st
 import pandas as pd
 import time
-from database_mysql import obtener_ordenes_pantalla, conectar
+import json
+import os
+from datetime import datetime
+from database_mysql import obtener_ordenes_pantalla
 
 # -------------------- Configuración inicial --------------------
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
@@ -11,14 +14,20 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Función para obtener el valor actual de last_update
-def obtener_last_update():
-    conn = conectar()
-    cur = conn.cursor()
-    cur.execute("SELECT last_update FROM log_sync LIMIT 1")
-    last_update = cur.fetchone()[0]
-    conn.close()
-    return str(last_update)
+# Ruta al archivo JSON donde guardamos el último update
+JSON_PATH = "last_update.json"
+
+# Función para leer la última fecha/hora desde el JSON
+def obtener_last_update_json():
+    if not os.path.exists(JSON_PATH):
+        return None
+    try:
+        with open(JSON_PATH, "r") as f:
+            data = json.load(f)
+        return data.get("last_update")
+    except Exception as e:
+        st.error(f"Error leyendo {JSON_PATH}: {e}")
+        return None
 
 # Función para dar color a las filas según estado
 def color_fila(row):
@@ -54,11 +63,12 @@ table_styles = [
 ]
 
 # Inicializar valor de last_update
-last_update_guardado = obtener_last_update()
+last_update_guardado = obtener_last_update_json()
 
-# Cargar datos iniciales
+# Placeholder para la tabla
 df_placeholder = st.empty()
 
+# Función para cargar datos desde la BD
 def cargar_datos():
     ordenes = obtener_ordenes_pantalla()
     if not ordenes:
@@ -75,10 +85,10 @@ def cargar_datos():
 # Mostrar datos iniciales
 cargar_datos()
 
-# Loop de verificación con menor frecuencia
+# Loop de verificación
 while True:
-    last_update_actual = obtener_last_update()
+    last_update_actual = obtener_last_update_json()
     if last_update_actual != last_update_guardado:
         last_update_guardado = last_update_actual
         cargar_datos()
-    time.sleep(15)  # revisa cada 15 segundos
+    time.sleep(15)
