@@ -9,18 +9,41 @@ from database_mysql import obtener_ordenes_pantalla
 # Configuración de página
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
 
-# Logo + Título en la misma fila
-col1, col2 = st.columns([1, 4])
-with col1:
-    st.image("Logo_interdiesel.jpg", use_column_width=True)
-with col2:
-    st.markdown("""
-    <h2 style='margin:0; padding-top:10px;'>
-    🖥️ Órdenes de Trabajo en Producción
-    </h2>
-    """, unsafe_allow_html=True)
+# Quitar padding superior de Streamlit y estilos generales
+st.markdown("""
+    <style>
+        /* Quitar padding superior */
+        .block-container {
+            padding-top: 0rem;
+            padding-bottom: 0rem;
+        }
+        /* Logo y título en la misma línea */
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 5px 0;
+        }
+        /* Tabla ajustada */
+        table {
+            width: 100% !important;
+            border-collapse: collapse;
+            table-layout: auto; /* evita deformar columnas */
+            word-break: keep-all; /* evita cortar palabras */
+            white-space: normal; /* permite saltos de línea */
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-# Ruta del archivo JSON
+# Logo y título juntos
+st.markdown("""
+<div class="logo-title">
+    <img src="Logo_interdiesel.jpg" alt="Logo" style="height:70px;">
+    <h1 style="margin:0; font-size:40px;">🖥️ Órdenes de Trabajo en Producción</h1>
+</div>
+""", unsafe_allow_html=True)
+
+# Ruta JSON
 JSON_PATH = "last_update.json"
 
 def obtener_last_update_json():
@@ -34,39 +57,24 @@ def obtener_last_update_json():
         st.error(f"Error leyendo {JSON_PATH}: {e}")
         return None
 
-# Estilos para tabla
+# Estilos para la tabla
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', 'clamp(16px, 1.2vw, 28px)'),
+        ('font-size', '28px'),  # encabezado más pequeño
         ('text-align', 'center'),
         ('background-color', '#003366'),
         ('color', 'white'),
-        ('padding', '6px')
+        ('padding', '8px')
     ]},
     {'selector': 'td', 'props': [
-        ('font-size', 'clamp(14px, 1vw, 20px)'),
+        ('font-size', '22px'),
         ('text-align', 'center'),
-        ('padding', '4px')
+        ('padding', '5px')
     ]}
 ]
 
-# CSS para evitar cortes de palabras y ocupar ancho total
-st.markdown("""
-<style>
-table {
-    width: 100% !important;
-    table-layout: auto !important;
-}
-th, td {
-    white-space: normal !important;
-    word-break: normal !important;
-    overflow-wrap: break-word !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# Función para colorear filas según estado
+# Colores por estado
 def color_fila(row):
     estado = row["Estado"].lower()
     if estado in ["actualizado", "autorizado"]:
@@ -83,19 +91,18 @@ def color_fila(row):
         color = ""
     return [color] * len(row)
 
-# Refrescar cada 15 segundos
+# Refrescar automáticamente cada 15 segundos
 count = st_autorefresh(interval=15_000, key="datarefresh")
 
-# Estado inicial
 if "last_update_guardado" not in st.session_state:
     st.session_state.last_update_guardado = None
 
-# Obtener última actualización
 last_update_actual = obtener_last_update_json()
+
 if last_update_actual != st.session_state.last_update_guardado:
     st.session_state.last_update_guardado = last_update_actual
 
-# Cargar datos
+# Mostrar datos
 ordenes = obtener_ordenes_pantalla()
 
 if not ordenes:
@@ -109,4 +116,3 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
-
