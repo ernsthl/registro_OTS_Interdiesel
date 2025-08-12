@@ -41,7 +41,7 @@ st.markdown("""
 # Logo + Título en la misma fila
 col1, col2 = st.columns([1, 4])
 with col1:
-    st.image("Logo_interdiesel.jpg", use_container_width=True)
+    st.image("Logo_interdiesel.jpg", use_column_width=True)
 with col2:
     st.markdown("""
     <h2 style='margin:0; padding-top:10px;'>
@@ -122,6 +122,7 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
 
 
 
