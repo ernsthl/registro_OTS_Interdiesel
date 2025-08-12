@@ -37,11 +37,17 @@ st.markdown("""
 
 ## --- Cabecera con logo y título ---
 
-col1, col2 = st.columns([1, 8])
+
+# Logo + Título en la misma fila
+col1, col2 = st.columns([1, 4])
 with col1:
-    st.image("Logo_interdiesel.jpg", width=80)
+    st.image("Logo_interdiesel.jpg", use_container_width=True)
 with col2:
-    st.markdown("<h1 style='margin:0; font-size:32px;'>🖥️ Órdenes de Trabajo en Producción</h1>", unsafe_allow_html=True)
+    st.markdown("""
+    <h2 style='margin:0; padding-top:10px;'>
+    🖥️ Órdenes de Trabajo en Producción
+    </h2>
+    """, unsafe_allow_html=True)
 
 # Ruta JSON
 JSON_PATH = "last_update.json"
@@ -116,6 +122,7 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
 
 
 
