@@ -27,20 +27,20 @@ def obtener_last_update_json():
         st.error(f"Error leyendo {JSON_PATH}: {e}")
         return None
 
-# Estilos generales para la tabla
+# Estilos generales para la tabla con tamaños dinámicos
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', '35px'),
+        ('font-size', '2vw'),        # Escala con el ancho de la pantalla
         ('text-align', 'center'),
-        ('background-color', '#003366'),  # Azul oscuro
+        ('background-color', '#003366'),
         ('color', 'white'),
-        ('padding', '15px')
+        ('padding', '1vw')
     ]},
     {'selector': 'td', 'props': [
-        ('font-size', '25px'),
+        ('font-size', '1.5vw'),      # Escala con el ancho de la pantalla
         ('text-align', 'center'),
-        ('padding', '10px')
+        ('padding', '0.8vw')
     ]}
 ]
 
@@ -96,4 +96,5 @@ else:
     )
 
     st.markdown(html, unsafe_allow_html=True)
+
 
