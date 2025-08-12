@@ -31,14 +31,14 @@ def obtener_last_update_json():
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', '40px'),
+        ('font-size', '35px'),
         ('text-align', 'center'),
         ('background-color', '#003366'),  # Azul oscuro
         ('color', 'white'),
         ('padding', '15px')
     ]},
     {'selector': 'td', 'props': [
-        ('font-size', '32px'),
+        ('font-size', '25px'),
         ('text-align', 'center'),
         ('padding', '10px')
     ]}
@@ -96,3 +96,4 @@ else:
     )
 
     st.markdown(html, unsafe_allow_html=True)
+
