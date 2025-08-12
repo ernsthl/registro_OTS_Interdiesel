@@ -38,7 +38,7 @@ st.markdown("""
 # Logo y título juntos
 st.markdown("""
 <div class="logo-title">
-    <img src="Logo_interdiesel.jpg" alt="Logo" style="height:70px;">
+    <img src="Logo_interdiesel.jpg" alt="Logo" style="height:100px;">
     <h1 style="margin:0; font-size:40px;">🖥️ Órdenes de Trabajo en Producción</h1>
 </div>
 """, unsafe_allow_html=True)
@@ -116,3 +116,4 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
