@@ -6,6 +6,7 @@ import os
 from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
 
+# Configuración general
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
 st.image("Logo_interdiesel.jpg", width=400)
 st.markdown(
@@ -26,51 +27,53 @@ def obtener_last_update_json():
         st.error(f"Error leyendo {JSON_PATH}: {e}")
         return None
 
+# Estilos generales para la tabla
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', '50px'),              # encabezado muy grande
+        ('font-size', '40px'),
         ('text-align', 'center'),
-        ('background-color', '#003366'),    # azul oscuro intenso para el header
+        ('background-color', '#003366'),  # Azul oscuro
         ('color', 'white'),
-        ('padding', '20px')
+        ('padding', '15px')
     ]},
     {'selector': 'td', 'props': [
-        ('font-size', '40px'),              # texto grande en celdas
+        ('font-size', '32px'),
         ('text-align', 'center'),
-        ('padding', '15px')
+        ('padding', '10px')
     ]}
 ]
 
+# Colores según estado
 def color_fila(row):
     estado = row["Estado"].lower()
     if estado in ["actualizado", "autorizado"]:
-        color = "background-color: #28a745; color: white"  # verde brillante
+        color = "background-color: #28a745; color: white"  # Verde
     elif estado in ["diagnóstico", "diagnostico"]:
-        color = "background-color: #ffc107; color: black"  # amarillo fuerte
+        color = "background-color: #ffc107; color: black"  # Amarillo
     elif estado == "cotizado":
-        color = "background-color: #007bff; color: white"  # azul vibrante
+        color = "background-color: #007bff; color: white"  # Azul
     elif estado == "despachado":
-        color = "background-color: #6c757d; color: white"  # gris oscuro
+        color = "background-color: #6c757d; color: white"  # Gris
     elif estado == "r-urg":
-        color = "background-color: #dc3545; color: white"  # rojo fuerte
+        color = "background-color: #dc3545; color: white"  # Rojo
     else:
         color = ""
     return [color] * len(row)
 
-# Refrescar automáticamente cada 15 segundos
-count = st_autorefresh(interval=15_000, key="datarefresh")
+# Refresco automático cada 15 segundos
+st_autorefresh(interval=15_000, key="datarefresh")
 
+# Estado inicial
 if "last_update_guardado" not in st.session_state:
     st.session_state.last_update_guardado = None
 
 last_update_actual = obtener_last_update_json()
 
-# Actualiza el valor guardado si hay un cambio
 if last_update_actual != st.session_state.last_update_guardado:
     st.session_state.last_update_guardado = last_update_actual
 
-# Siempre carga y muestra los datos para evitar pantalla en blanco
+# Datos
 ordenes = obtener_ordenes_pantalla()
 
 if not ordenes:
@@ -81,10 +84,15 @@ else:
         "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
     ])
     df['Estado'] = df['Estado'].astype(str)
+
+    # Aplicar estilos
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
+
+    # Convertir a HTML y ajustar ancho al 100% con columnas fijas
     html = styled_df.to_html()
+    html = html.replace(
+        '<table ',
+        '<table style="width:100%; table-layout:fixed; word-wrap:break-word;" '
+    )
+
     st.markdown(html, unsafe_allow_html=True)
-
-
-
-
