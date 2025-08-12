@@ -14,7 +14,7 @@ st.markdown("""
     <style>
         /* Quitar padding superior */
         .block-container {
-            padding-top: 10rem;
+            padding-top: 2rem;
             padding-bottom: 0rem;
         }
         /* Logo y título en la misma línea */
@@ -122,6 +122,7 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
 
 
 
