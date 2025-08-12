@@ -6,14 +6,20 @@ import os
 from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
 
-# Configuración general
+# Configuración de página
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
-st.image("Logo_interdiesel.jpg", width=400)
-st.markdown(
-    "<h1 style='text-align: center; font-size: 50px;'>🖥️ Órdenes de Trabajo en Producción</h1>",
-    unsafe_allow_html=True
-)
 
+# Logo
+st.image("Logo_interdiesel.jpg", width=400)
+
+# Título responsivo
+st.markdown("""
+<h1 style='text-align: center; font-size: clamp(30px, 4vw, 60px);'>
+🖥️ Órdenes de Trabajo en Producción
+</h1>
+""", unsafe_allow_html=True)
+
+# Ruta del archivo JSON
 JSON_PATH = "last_update.json"
 
 def obtener_last_update_json():
@@ -27,74 +33,45 @@ def obtener_last_update_json():
         st.error(f"Error leyendo {JSON_PATH}: {e}")
         return None
 
-# Estilos generales para la tabla con tamaños dinámicos
+# Estilos dinámicos para tabla
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', '2vw'),        # Escala con el ancho de la pantalla
+        ('font-size', 'clamp(20px, 2vw, 40px)'),
         ('text-align', 'center'),
         ('background-color', '#003366'),
         ('color', 'white'),
-        ('padding', '1vw')
+        ('padding', 'clamp(10px, 1vw, 20px)')
     ]},
     {'selector': 'td', 'props': [
-        ('font-size', '1.5vw'),      # Escala con el ancho de la pantalla
+        ('font-size', 'clamp(16px, 1.5vw, 32px)'),
         ('text-align', 'center'),
-        ('padding', '0.8vw')
+        ('padding', 'clamp(8px, 0.8vw, 15px)')
     ]}
 ]
 
-# Colores según estado
+# CSS extra para ancho completo y evitar deformaciones
+st.markdown("""
+<style>
+table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    word-wrap: break-word;
+}
+th, td {
+    white-space: normal !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Función para colorear filas según estado
 def color_fila(row):
     estado = row["Estado"].lower()
     if estado in ["actualizado", "autorizado"]:
-        color = "background-color: #28a745; color: white"  # Verde
+        color = "background-color: #28a745; color: white"
     elif estado in ["diagnóstico", "diagnostico"]:
-        color = "background-color: #ffc107; color: black"  # Amarillo
+        color = "background-color: #ffc107; color: black"
     elif estado == "cotizado":
-        color = "background-color: #007bff; color: white"  # Azul
+        color = "background-color: #007bff; color: white"
     elif estado == "despachado":
-        color = "background-color: #6c757d; color: white"  # Gris
-    elif estado == "r-urg":
-        color = "background-color: #dc3545; color: white"  # Rojo
-    else:
-        color = ""
-    return [color] * len(row)
-
-# Refresco automático cada 15 segundos
-st_autorefresh(interval=15_000, key="datarefresh")
-
-# Estado inicial
-if "last_update_guardado" not in st.session_state:
-    st.session_state.last_update_guardado = None
-
-last_update_actual = obtener_last_update_json()
-
-if last_update_actual != st.session_state.last_update_guardado:
-    st.session_state.last_update_guardado = last_update_actual
-
-# Datos
-ordenes = obtener_ordenes_pantalla()
-
-if not ordenes:
-    st.info("No hay órdenes registradas actualmente.")
-else:
-    df = pd.DataFrame(ordenes, columns=[
-        "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
-        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
-    ])
-    df['Estado'] = df['Estado'].astype(str)
-
-    # Aplicar estilos
-    styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
-
-    # Convertir a HTML y ajustar ancho al 100% con columnas fijas
-    html = styled_df.to_html()
-    html = html.replace(
-        '<table ',
-        '<table style="width:100%; table-layout:fixed; word-wrap:break-word;" '
-    )
-
-    st.markdown(html, unsafe_allow_html=True)
-
-
+        color = "background-c
