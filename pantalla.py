@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Aug 29 09:48:37 2025
+
+@author: ernst
+"""
+
 from streamlit_autorefresh import st_autorefresh
 import streamlit as st
 import pandas as pd
@@ -35,10 +42,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-## --- Cabecera con logo y título ---
-
-
-# Logo + Título en la misma fila
+# --- Cabecera con logo y título ---
 col1, col2 = st.columns([1, 4])
 with col1:
     st.image("Logo_interdiesel.jpg", use_column_width=True)
@@ -67,7 +71,7 @@ def obtener_last_update_json():
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
-        ('font-size', '28px'),  # encabezado más pequeño
+        ('font-size', '28px'),
         ('text-align', 'center'),
         ('background-color', '#003366'),
         ('color', 'white'),
@@ -119,14 +123,26 @@ else:
         "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
     ])
     df['Estado'] = df['Estado'].astype(str)
+
+    # Definir prioridad de estados
+    prioridad = {
+        "autorizado": 1,
+        "r-urg": 2,
+        "diagnóstico": 3,
+        "diagnostico": 3,  # por si llega sin tilde
+        "cotizado": 4
+    }
+
+    # Asignar columna de prioridad (los que no estén, van al final con 99)
+    df["prioridad_estado"] = df["Estado"].str.lower().map(prioridad).fillna(99)
+
+    # Ordenar por prioridad y luego por fecha de registro (más recientes primero)
+    df = df.sort_values(by=["prioridad_estado", "Fecha Registro"], ascending=[True, False])
+
+    # Eliminar la columna auxiliar antes de mostrar
+    df = df.drop(columns=["prioridad_estado"])
+
+    # Aplicar estilos y renderizar
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
