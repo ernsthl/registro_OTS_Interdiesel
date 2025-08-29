@@ -126,8 +126,8 @@ else:
 
     # Definir prioridad de estados
     prioridad = {
-        "autorizado": 1,
-        "r-urg": 2,
+        "autorizado": 2,
+        "r-urg": 1,
         "diagnóstico": 3,
         "diagnostico": 3,  # por si llega sin tilde
         "cotizado": 4
@@ -146,3 +146,4 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
