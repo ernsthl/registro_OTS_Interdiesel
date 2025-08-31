@@ -53,29 +53,25 @@ with col2:
     </h2>
     """, unsafe_allow_html=True)
 
-# --- 📌 ComboBox de técnicos (debajo del título) ---
+# --- 📌 Obtener órdenes y preparar filtro ---
 ordenes = obtener_ordenes_pantalla()
 
 if not ordenes:
     st.info("No hay órdenes registradas actualmente.")
+    st.stop()
 else:
-    df = pd.DataFrame(ordenes, columns=[
+    df_init = pd.DataFrame(ordenes, columns=[
         "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
         "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
     ])
-    df['Estado'] = df['Estado'].astype(str)
+    df_init['Estado'] = df_init['Estado'].astype(str)
 
-    tecnicos = sorted(df["Técnico"].dropna().unique())
+    tecnicos = sorted(df_init["Técnico"].dropna().unique())
     tecnico_seleccionado = st.selectbox(
         "👷 Seleccione Técnico",
         options=["Todos"] + list(tecnicos),
         index=0
     )
-
-    # Filtrar por técnico (si no es "Todos")
-    if tecnico_seleccionado != "Todos":
-        df = df[df["Técnico"] == tecnico_seleccionado]
-
 
 # Ruta JSON
 JSON_PATH = "last_update.json"
@@ -136,7 +132,9 @@ last_update_actual = obtener_last_update_json()
 if last_update_actual != st.session_state.last_update_guardado:
     st.session_state.last_update_guardado = last_update_actual
 
-# Mostrar datos
+# -----------------------------
+# 🔄 Refrescar datos
+# -----------------------------
 ordenes = obtener_ordenes_pantalla()
 
 if not ordenes:
@@ -148,27 +146,28 @@ else:
     ])
     df['Estado'] = df['Estado'].astype(str)
 
-    # Definir prioridad de estados
-    prioridad = {
-        "autorizado": 2,
-        "r-urg": 1,
-        "diagnóstico": 3,
-        "diagnostico": 3,  # por si llega sin tilde
-        "cotizado": 4
-    }
+    # 👇 Aplicamos filtro aquí (justo antes de ordenar y mostrar)
+    if tecnico_seleccionado and tecnico_seleccionado != "Todos":
+        df = df[df["Técnico"] == tecnico_seleccionado]
 
-    # Asignar columna de prioridad (los que no estén, van al final con 99)
-    df["prioridad_estado"] = df["Estado"].str.lower().map(prioridad).fillna(99)
+    # 👇 Validamos si después del filtro quedó vacío
+    if df.empty:
+        st.warning("⚠️ No hay órdenes para el técnico seleccionado.")
+    else:
+        # Definir prioridad de estados
+        prioridad = {
+            "autorizado": 2,
+            "r-urg": 1,
+            "diagnóstico": 3,
+            "diagnostico": 3,  # por si llega sin tilde
+            "cotizado": 4
+        }
 
-    # Ordenar por prioridad y luego por fecha de registro (más recientes primero)
-    df = df.sort_values(by=["prioridad_estado", "Fecha Registro"], ascending=[True, False])
+        df["prioridad_estado"] = df["Estado"].str.lower().map(prioridad).fillna(99)
+        df = df.sort_values(by=["prioridad_estado", "Fecha Registro"], ascending=[True, False])
+        df = df.drop(columns=["prioridad_estado"])
 
-    # Eliminar la columna auxiliar antes de mostrar
-    df = df.drop(columns=["prioridad_estado"])
-
-    # Aplicar estilos y renderizar
-    styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
-    html = styled_df.to_html()
-    st.markdown(html, unsafe_allow_html=True)
-
-
+        # Render tabla
+        styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
+        html = styled_df.to_html()
+        st.markdown(html, unsafe_allow_html=True)
