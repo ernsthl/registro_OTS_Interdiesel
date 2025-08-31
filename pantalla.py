@@ -53,6 +53,30 @@ with col2:
     </h2>
     """, unsafe_allow_html=True)
 
+# --- 📌 ComboBox de técnicos (debajo del título) ---
+ordenes = obtener_ordenes_pantalla()
+
+if not ordenes:
+    st.info("No hay órdenes registradas actualmente.")
+else:
+    df = pd.DataFrame(ordenes, columns=[
+        "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
+        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
+    ])
+    df['Estado'] = df['Estado'].astype(str)
+
+    tecnicos = sorted(df["Técnico"].dropna().unique())
+    tecnico_seleccionado = st.selectbox(
+        "👷 Seleccione Técnico",
+        options=["Todos"] + list(tecnicos),
+        index=0
+    )
+
+    # Filtrar por técnico (si no es "Todos")
+    if tecnico_seleccionado != "Todos":
+        df = df[df["Técnico"] == tecnico_seleccionado]
+
+
 # Ruta JSON
 JSON_PATH = "last_update.json"
 
@@ -146,4 +170,5 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
 
