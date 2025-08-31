@@ -90,8 +90,20 @@ with st.form("form_registro", clear_on_submit=True):
 
 if submitted:
     numero_ot_full = normalize_ot(numero_ot_input)
-    if not numero_ot_full or tipo_servicio == "escoja una opción" or estado == "escoja una opción":
+
+    # Validar campos obligatorios
+    if (not numero_ot_full 
+        or tipo_servicio == "escoja una opción" 
+        or estado == "escoja una opción"
+        or not cliente.strip()
+        or not marca_modelo.strip()
+        or not tecnico  # si es multiselección
+        or not fecha_registro
+        or not fecha_entrega
+        or not hora_entrega):
+        
         st.warning("⚠️ Complete todos los campos obligatorios.")
+    
     else:
         existing_norm = [str(x).strip() for x in obtener_numeros_ot()]
         if numero_ot_full in existing_norm:
