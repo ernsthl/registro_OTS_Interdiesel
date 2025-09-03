@@ -66,10 +66,20 @@ else:
     ])
     df_init['Estado'] = df_init['Estado'].astype(str)
 
-    tecnicos = sorted(df_init["Técnico"].dropna().unique())
+    # ✅ Dividir técnicos en lista y obtener únicos
+    tecnicos_unicos = (
+        df_init["Técnico"]
+        .dropna()
+        .str.split(",")       # separa por coma
+        .explode()            # cada técnico en fila
+        .str.strip()          # quitar espacios
+        .unique()
+    )
+
+    # ✅ Selectbox con técnicos únicos
     tecnico_seleccionado = st.selectbox(
         "👷 Seleccione Técnico",
-        options=["Todos"] + list(tecnicos),
+        options=["Todos"] + sorted(tecnicos_unicos),
         index=0
     )
 
@@ -146,9 +156,9 @@ else:
     ])
     df['Estado'] = df['Estado'].astype(str)
 
-    # 👇 Aplicamos filtro aquí (justo antes de ordenar y mostrar)
+    # 👇 Aplicamos filtro de técnico
     if tecnico_seleccionado and tecnico_seleccionado != "Todos":
-        df = df[df["Técnico"] == tecnico_seleccionado]
+        df = df[df["Técnico"].str.contains(tecnico_seleccionado, case=False, na=False)]
 
     # 👇 Validamos si después del filtro quedó vacío
     if df.empty:
