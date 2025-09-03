@@ -98,9 +98,7 @@ if submitted:
         or not cliente.strip()
         or not marca_modelo.strip()
         or not tecnico  # si es multiselección
-        or not fecha_registro
-        or not fecha_entrega
-        or not hora_entrega):
+        or not fecha_registro):
         
         st.warning("⚠️ Complete todos los campos obligatorios.")
     
