@@ -35,9 +35,9 @@ st.markdown("""
         table {
             width: 100% !important;
             border-collapse: collapse;
-            table-layout: auto; /* evita deformar columnas */
-            word-break: keep-all; /* evita cortar palabras */
-            white-space: normal; /* permite saltos de línea */
+            table-layout: auto;
+            word-break: keep-all;
+            white-space: normal;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -53,37 +53,9 @@ with col2:
     </h2>
     """, unsafe_allow_html=True)
 
-# --- 📌 Obtener órdenes y preparar filtro ---
-ordenes = obtener_ordenes_pantalla()
-
-if not ordenes:
-    st.info("No hay órdenes registradas actualmente.")
-    st.stop()
-else:
-    df_init = pd.DataFrame(ordenes, columns=[
-        "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
-        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
-    ])
-    df_init['Estado'] = df_init['Estado'].astype(str)
-
-    # ✅ Dividir técnicos en lista y obtener únicos
-    tecnicos_unicos = (
-        df_init["Técnico"]
-        .dropna()
-        .str.split(",")       # separa por coma
-        .explode()            # cada técnico en fila
-        .str.strip()          # quitar espacios
-        .unique()
-    )
-
-    # ✅ Selectbox con técnicos únicos
-    tecnico_seleccionado = st.selectbox(
-        "👷 Seleccione Técnico",
-        options=["Todos"] + sorted(tecnicos_unicos),
-        index=0
-    )
-
-# Ruta JSON
+# -----------------------------
+# 🔄 Funciones auxiliares
+# -----------------------------
 JSON_PATH = "last_update.json"
 
 def obtener_last_update_json():
@@ -97,7 +69,19 @@ def obtener_last_update_json():
         st.error(f"Error leyendo {JSON_PATH}: {e}")
         return None
 
-# Estilos para la tabla
+# ✅ Cacheamos la consulta a BD
+@st.cache_data(ttl=None, show_spinner=False)
+def cargar_ordenes(last_update: str):
+    """
+    Obtiene órdenes desde la BD.
+    El parámetro `last_update` sirve como clave de cache:
+    - Si last_update.json cambia → se invalida el cache.
+    """
+    return obtener_ordenes_pantalla()
+
+# -----------------------------
+# 🎨 Estilos tabla y colores
+# -----------------------------
 table_styles = [
     {'selector': 'th', 'props': [
         ('font-weight', 'bold'),
@@ -114,7 +98,6 @@ table_styles = [
     ]}
 ]
 
-# Colores por estado
 def color_fila(row):
     estado = row["Estado"].lower()
     if estado in ["actualizado", "autorizado"]:
@@ -131,53 +114,70 @@ def color_fila(row):
         color = ""
     return [color] * len(row)
 
-# Refrescar automáticamente cada 15 segundos
+# -----------------------------
+# 🔄 Refrescar automáticamente cada 15s
+# -----------------------------
 count = st_autorefresh(interval=15_000, key="datarefresh")
 
-if "last_update_guardado" not in st.session_state:
-    st.session_state.last_update_guardado = None
-
-last_update_actual = obtener_last_update_json()
-
-if last_update_actual != st.session_state.last_update_guardado:
-    st.session_state.last_update_guardado = last_update_actual
-
 # -----------------------------
-# 🔄 Refrescar datos
+# 📥 Cargar datos con cache
 # -----------------------------
-ordenes = obtener_ordenes_pantalla()
+last_update = obtener_last_update_json()
+ordenes = cargar_ordenes(last_update)
 
 if not ordenes:
     st.info("No hay órdenes registradas actualmente.")
+    st.stop()
+
+# Convertir a DataFrame
+df = pd.DataFrame(ordenes, columns=[
+    "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
+    "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
+])
+df['Estado'] = df['Estado'].astype(str)
+
+# -----------------------------
+# 👷 Filtro de técnicos
+# -----------------------------
+tecnicos_unicos = (
+    df["Técnico"]
+    .dropna()
+    .str.split(",")
+    .explode()
+    .str.strip()
+    .unique()
+)
+
+tecnico_seleccionado = st.selectbox(
+    "👷 Seleccione Técnico",
+    options=["Todos"] + sorted(tecnicos_unicos),
+    index=0
+)
+
+# Aplicar filtro
+if tecnico_seleccionado and tecnico_seleccionado != "Todos":
+    df = df[df["Técnico"].str.contains(tecnico_seleccionado, case=False, na=False)]
+
+# -----------------------------
+# 📊 Mostrar datos
+# -----------------------------
+if df.empty:
+    st.warning("⚠️ No hay órdenes para el técnico seleccionado.")
 else:
-    df = pd.DataFrame(ordenes, columns=[
-        "Número OT", "Fecha Registro", "Cliente", "Marca Modelo", "Tipo Servicio",
-        "Técnico", "Estado", "Fecha Entrega", "Hora Entrega"
-    ])
-    df['Estado'] = df['Estado'].astype(str)
+    # Prioridad de estados
+    prioridad = {
+        "autorizado": 2,
+        "r-urg": 1,
+        "diagnóstico": 3,
+        "diagnostico": 3,
+        "cotizado": 4
+    }
 
-    # 👇 Aplicamos filtro de técnico
-    if tecnico_seleccionado and tecnico_seleccionado != "Todos":
-        df = df[df["Técnico"].str.contains(tecnico_seleccionado, case=False, na=False)]
+    df["prioridad_estado"] = df["Estado"].str.lower().map(prioridad).fillna(99)
+    df = df.sort_values(by=["prioridad_estado", "Fecha Registro"], ascending=[True, False])
+    df = df.drop(columns=["prioridad_estado"])
 
-    # 👇 Validamos si después del filtro quedó vacío
-    if df.empty:
-        st.warning("⚠️ No hay órdenes para el técnico seleccionado.")
-    else:
-        # Definir prioridad de estados
-        prioridad = {
-            "autorizado": 2,
-            "r-urg": 1,
-            "diagnóstico": 3,
-            "diagnostico": 3,  # por si llega sin tilde
-            "cotizado": 4
-        }
-
-        df["prioridad_estado"] = df["Estado"].str.lower().map(prioridad).fillna(99)
-        df = df.sort_values(by=["prioridad_estado", "Fecha Registro"], ascending=[True, False])
-        df = df.drop(columns=["prioridad_estado"])
-
-        # Render tabla
-        styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
-        html = styled_df.to_html()
-        st.markdown(html, unsafe_allow_html=True)
+    # Render tabla
+    styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
+    html = styled_df.to_html()
+    st.markdown(html, unsafe_allow_html=True)
