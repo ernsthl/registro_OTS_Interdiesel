@@ -191,3 +191,12 @@ def obtener_timestamp_sync():
     result = cur.fetchone()
     conn.close()
     return result[0] if result else None
+
+def obtener_last_update_db():
+    conn = conexion_mysql()
+    cursor = conn.cursor()
+    cursor.execute("SELECT last_update FROM log_sync ORDER BY id DESC LIMIT 1;")
+    result = cursor.fetchone()
+    conn.close()
+    return str(result[0]) if result else None
+
