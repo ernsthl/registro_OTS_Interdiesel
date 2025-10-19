@@ -12,6 +12,7 @@ import json
 import os
 from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
+from database_mysql import obtener_last_update_db
 
 # Configuración de página
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
@@ -56,17 +57,13 @@ with col2:
 # -----------------------------
 # 🔄 Funciones auxiliares
 # -----------------------------
-JSON_PATH = "last_update.json"
 
 def obtener_last_update_json():
-    if not os.path.exists(JSON_PATH):
-        return None
+    """Obtiene el timestamp del log_sync para invalidar la caché solo si hay cambios."""
     try:
-        with open(JSON_PATH, "r") as f:
-            data = json.load(f)
-        return data.get("last_update")
+        return obtener_last_update_db()
     except Exception as e:
-        st.error(f"Error leyendo {JSON_PATH}: {e}")
+        st.error(f"Error obteniendo log_sync: {e}")
         return None
 
 # ✅ Cacheamos la consulta a BD
@@ -181,3 +178,4 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
