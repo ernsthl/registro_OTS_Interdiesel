@@ -119,6 +119,7 @@ count = st_autorefresh(interval=15_000, key="datarefresh")
 # -----------------------------
 # 📥 Cargar datos con cache
 # -----------------------------
+
 last_update = obtener_last_update_json()
 ordenes = cargar_ordenes(last_update)
 
@@ -178,4 +179,5 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
+
 
