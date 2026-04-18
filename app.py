@@ -77,7 +77,7 @@ with st.form("form_registro", clear_on_submit=True):
         marca_modelo = st.text_input("🚗 Marca y Modelo del Auto", placeholder="ingrese texto")
     with col2:
         tipo_servicio = st.selectbox("🛠️ Tipo de servicio", ["escoja una opción", "Laboratorio", "Taller"])
-        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Charly", "Dario", "Gisell", "Santiago", "Externo"], default=[])
+        tecnico = st.multiselect("👨‍🔧 Técnicos asignados", ["Armando", "Ronal", "Dario", "Gisell", "Santiago", "Externo"], default=[])
         estado = st.selectbox("📌 Estado", ["escoja una opción", "Diagnóstico", "Cotizado", "Autorizado", "Despachado", "R-URG"])
 
         if estado in ["Autorizado", "R-URG"]:
