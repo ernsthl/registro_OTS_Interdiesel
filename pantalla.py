@@ -123,7 +123,7 @@ count = st_autorefresh(interval=15_000, key="datarefresh")
 # 📥 Cargar datos con cache
 # -----------------------------
 
-last_update = obtener_last_update_local()
+last_update = obtener_last_update_json()
 ordenes = cargar_ordenes(last_update)
 
 if not ordenes:
