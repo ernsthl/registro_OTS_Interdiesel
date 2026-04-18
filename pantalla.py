@@ -58,16 +58,16 @@ with col2:
 # 🔄 Funciones auxiliares
 # -----------------------------
 
-def obtener_last_update_local():
-    """Obtiene el timestamp del log_sync para invalidar la caché solo si hay cambios."""
+def obtener_last_update_json():
     try:
-        if os.path.exists("las_update.json"):
+        if os.path.exists("last_update.json"):
             with open("last_update.json", "r") as f:
                 data = json.load(f)
-                return data.get("last_update","")
-            return ""
-    except:
-        return ""
+                return data.get("last_update")
+        return None
+    except Exception as e:
+        st.error(f"Error leyendo JSON: {e}")
+        return None
 
 # ✅ Cacheamos la consulta a BD
 @st.cache_data(ttl=None, show_spinner=False)
