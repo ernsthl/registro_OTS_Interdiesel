@@ -8,11 +8,8 @@ Created on Fri Aug 29 09:48:37 2025
 from streamlit_autorefresh import st_autorefresh
 import streamlit as st
 import pandas as pd
-import json
-import os
-from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
-
+from database_mysql import obtener_last_update_db
 
 # Configuración de página
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
@@ -58,25 +55,18 @@ with col2:
 # 🔄 Funciones auxiliares
 # -----------------------------
 
-def obtener_last_update_json():
-    try:
-        if os.path.exists("last_update.json"):
-            with open("last_update.json", "r") as f:
-                data = json.load(f)
-                return data.get("last_update")
-        return None
-    except Exception as e:
-        st.error(f"Error leyendo JSON: {e}")
-        return None
+# def obtener_last_update_json():
+#     """Obtiene el timestamp del log_sync para invalidar la caché solo si hay cambios."""
+#     try:
+#         return obtener_last_update_db()
+#     except Exception as e:
+#         st.error(f"Error obteniendo log_sync: {e}")
+#         return None
 
 # ✅ Cacheamos la consulta a BD
-@st.cache_data(ttl=None, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def cargar_ordenes(last_update: str):
-    """
-    Obtiene órdenes desde la BD.
-    El parámetro `last_update` sirve como clave de cache:
-    - Si last_update.json cambia → se invalida el cache.
-    """
+    _ = last_update  # solo para cache key
     return obtener_ordenes_pantalla()
 
 # -----------------------------
@@ -117,13 +107,21 @@ def color_fila(row):
 # -----------------------------
 # 🔄 Refrescar automáticamente cada 15s
 # -----------------------------
-count = st_autorefresh(interval=15_000, key="datarefresh")
+count = st_autorefresh(interval=60000, key="datarefresh")
 
 # -----------------------------
 # 📥 Cargar datos con cache
 # -----------------------------
+@st.cache_data(ttl=60)
+def obtener_last_update_cached():
+    return obtener_last_update_db()
 
-last_update = obtener_last_update_json()
+try:
+    last_update = obtener_last_update_cached()
+except Exception as e:
+    st.error(f"Error obteniendo actualización: {e}")
+    last_update = str(pd.Timestamp.now())
+
 ordenes = cargar_ordenes(last_update)
 
 if not ordenes:
@@ -182,5 +180,4 @@ else:
     styled_df = df.style.apply(color_fila, axis=1).set_table_styles(table_styles)
     html = styled_df.to_html()
     st.markdown(html, unsafe_allow_html=True)
-
 
