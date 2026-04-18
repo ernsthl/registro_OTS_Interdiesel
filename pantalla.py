@@ -12,7 +12,7 @@ import json
 import os
 from datetime import datetime
 from database_mysql import obtener_ordenes_pantalla
-from database_mysql import obtener_last_update_db
+
 
 # Configuración de página
 st.set_page_config(page_title="Pantalla de Producción", layout="wide")
@@ -58,13 +58,16 @@ with col2:
 # 🔄 Funciones auxiliares
 # -----------------------------
 
-def obtener_last_update_json():
+def obtener_last_update_local():
     """Obtiene el timestamp del log_sync para invalidar la caché solo si hay cambios."""
     try:
-        return obtener_last_update_db()
-    except Exception as e:
-        st.error(f"Error obteniendo log_sync: {e}")
-        return None
+        if os.path.exists("las_update.json"):
+            with open("last_update.json", "r") as f:
+                data = json.load(f)
+                return data.get("last_update","")
+            return ""
+    except:
+        return ""
 
 # ✅ Cacheamos la consulta a BD
 @st.cache_data(ttl=None, show_spinner=False)
@@ -120,7 +123,7 @@ count = st_autorefresh(interval=15_000, key="datarefresh")
 # 📥 Cargar datos con cache
 # -----------------------------
 
-last_update = obtener_last_update_json()
+last_update = obtener_last_update_local()
 ordenes = cargar_ordenes(last_update)
 
 if not ordenes:
