@@ -180,7 +180,7 @@ if "ot_edit" in st.session_state:
             )
             tecnico = st.multiselect(
                 "👨‍🔧 Técnicos asignados",
-                ["Armando", "Charly", "Dario", "Gisell", "Santiago", "Externo"],
+                ["Armando", "Ronal", "Dario", "Gisell", "Santiago", "Externo"],
                 default=ot_edit["tecnico"].split(", "),
                 key="tecnico_form"
             )
