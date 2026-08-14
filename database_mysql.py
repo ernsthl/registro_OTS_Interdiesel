@@ -113,17 +113,19 @@ def obtener_ordenes_pantalla():
     return rows
     
 def obtener_orden_por_numero(numero_ot):
-    conn = conectar()
-    cur = conn.cursor()
+    conn = None
+    cursor = None
+
     try:
         conn = conectar()
-        cursor = conn.cursor(dictionary=True)  # Retorna filas como diccionario
+        cursor = conn.cursor(dictionary=True)
 
-        sql = "SELECT * FROM orden_trabajo WHERE numero_ot = %s"
-        cursor.execute(sql, (numero_ot,))
-        resultado = cursor.fetchone()  # Solo una fila
+        cursor.execute(
+            "SELECT * FROM orden_trabajo WHERE numero_ot = %s",
+            (numero_ot,)
+        )
 
-        return resultado  # Diccionario o None si no encontró
+        return cursor.fetchone()
 
     except Exception as e:
         raise Exception(f"Error obteniendo OT: {e}")
@@ -131,7 +133,8 @@ def obtener_orden_por_numero(numero_ot):
     finally:
         if cursor:
             cursor.close()
-        if conn:
+
+        if conn and conn.is_connected():
             conn.close()
             
 def actualizar_ot(numero_ot_full, cliente, marca_modelo, tipo_servicio, tecnico, estado, fecha_entrega, hora_entrega, usuario):
