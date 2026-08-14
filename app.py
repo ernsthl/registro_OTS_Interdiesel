@@ -42,7 +42,6 @@ def actualizar_last_update_json():
 # -------------------- Configuración inicial --------------------
 st.set_page_config(page_title="Registro de OTs", layout="wide")
 st.image("Logo_interdiesel.jpg", width=400)
-crear_tablas()
 
 st.markdown("## 🧾 Sistema de Control de Órdenes de Trabajo")
 st.markdown("---")
